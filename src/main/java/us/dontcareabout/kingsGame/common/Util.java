@@ -7,6 +7,11 @@ import java.util.Date;
 public class Util {
 	private static final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
 
+	public static void log(String message) {
+		System.out.print(Util.nowText() + " : ");
+		System.out.println(message);
+	}
+
 	public static String nowText() { return dateFormat.format(new Date()); }
 
 	public static long now() { return new Date().getTime(); }
