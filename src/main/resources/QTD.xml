@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+	<!-- 0～6，半形逗號分隔 -->
+	<entry key="upgradeOrder">2, 0, 3, 5, 6, 4, 1</entry>
+	
+	<!-- 時間間隔區，單位：秒 -->
+	<entry key="levelInterval">180</entry>
+	<entry key="upgradeInterval">45</entry>
+</properties>
