@@ -25,54 +25,72 @@ public class QTD {
 
 	private final Slave slave;
 	private final Setting setting = new Setting();
-	
+
 	private int[] updateIndexOrder = setting.upgradeOrder();
 	private final long levelInterval = setting.levelInterval() * 1000;
 	private final long upgradeInterval = setting.upgradeInterval() * 1000;
 
+	private boolean observeMode;
 	private long levelCheckTime = Util.now();
 	private long upgradeCheckTime = Util.now();
 
 	private BufferedImage preLvImg;
 
-	private QTD(boolean observeMode) throws Exception {
-		System.out.println("觀察模式：" + observeMode);
-
+	private QTD() throws Exception {
 		slave = new Slave();
+	}
+
+	public void setMode(boolean isObserveMode) {
+		observeMode = isObserveMode;
+	}
+
+	public void start() {
+		Util.log("觀察模式：" + observeMode);
 		preLvImg = slave.screenShot(levelArea);
 
 		while(true) {
 			slave.sleep(1);
 
-			if (!observeMode && Util.now() - upgradeCheckTime > upgradeInterval) {
-				for (int i : updateIndexOrder) {
-					XY crewXY = getCrewXY(i);
-					while (isCanUpgrade(crewXY)) {
-						slave.click(crewXY);
-						slave.sleep(1);
-					}
-				}
-
-				upgradeCheckTime = Util.now();
+			if (Util.now() - upgradeCheckTime > upgradeInterval) {
+				upgradeProcess();
 			}
 
 			if (Util.now() - levelCheckTime > levelInterval) {
-				BufferedImage nowLvImg = slave.screenShot(levelArea);
-				boolean result = Util.compare(preLvImg, nowLvImg);
-				if (!result) {
-					preLvImg = nowLvImg;
-					levelCheckTime = Util.now();
-					continue;
-				}
-
-				if (observeMode) {
-					levelCheckTime = Util.now();
-					JOptionPane.showMessageDialog(null, "卡關了，大佬？");
-				} else {
-					Util.log("重生啦～～～");
-					doRebirth();
-				}
+				levelCompareProcess();
 			}
+		}
+	}
+
+	private void upgradeProcess() {
+		if (observeMode) { return; }
+
+		for (int i : updateIndexOrder) {
+			XY crewXY = getCrewXY(i);
+			while (isCanUpgrade(crewXY)) {
+				slave.click(crewXY);
+				slave.sleep(1);
+			}
+		}
+
+		upgradeCheckTime = Util.now();
+	}
+
+	private void levelCompareProcess() {
+		levelCheckTime = Util.now();
+
+		BufferedImage nowLvImg = slave.screenShot(levelArea);
+		boolean result = Util.compare(preLvImg, nowLvImg);
+
+		if (!result) {
+			preLvImg = nowLvImg;
+			return;
+		}
+
+		if (observeMode) {
+			JOptionPane.showMessageDialog(null, "卡關了，大佬？");
+		} else {
+			Util.log("重生啦～～～");
+			doRebirth();
 		}
 	}
 
@@ -97,9 +115,10 @@ public class QTD {
 		slave.click(rebirthEnd);
 	}
 
-	@SuppressWarnings("unused")
 	public static void main(String[] args) throws Exception {
 		int type = JOptionPane.showConfirmDialog(null, "觀察模式？", "", JOptionPane.YES_NO_OPTION);
-		new QTD(type == 0);
+		QTD slave = new QTD();
+		slave.setMode(type == 0);
+		slave.start();
 	}
 }
