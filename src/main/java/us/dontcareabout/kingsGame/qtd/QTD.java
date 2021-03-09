@@ -11,13 +11,9 @@ import us.dontcareabout.kingsGame.common.XY;
 
 //Ver 0.0.1
 public class QTD {
-	private static final long lvCheckSlice = 180 * 1000;
-	private static final long upgradeSlice = 30 * 1000;
-
 	private static final int crewWidth = 140;
 	private static final int updateEnable = -4444444;
 	private static final int rebirthBloodColor = -6547416;
-	private static final int[] updateIndexOrder = {2, 0, 3, 5, 6, 4, 1};
 
 	private static final XY rebirth = new XY(100, 340);
 	private static final XY rebirthConfirm = new XY(335, 495);
@@ -28,9 +24,14 @@ public class QTD {
 	private static final Rect levelArea = new Rect(440, 55, 35, 15);
 
 	private final Slave slave;
+	private final Setting setting = new Setting();
+	
+	private int[] updateIndexOrder = setting.upgradeOrder();
+	private final long levelInterval = setting.levelInterval() * 1000;
+	private final long upgradeInterval = setting.upgradeInterval() * 1000;
 
 	private long levelCheckTime = Util.now();
-	private long upgradeTime = Util.now();
+	private long upgradeCheckTime = Util.now();
 
 	private BufferedImage preLvImg;
 
@@ -43,7 +44,7 @@ public class QTD {
 		while(true) {
 			slave.sleep(1);
 
-			if (!observeMode && Util.now() - upgradeTime > upgradeSlice) {
+			if (!observeMode && Util.now() - upgradeCheckTime > upgradeInterval) {
 				for (int i : updateIndexOrder) {
 					XY crewXY = getCrewXY(i);
 					while (isCanUpgrade(crewXY)) {
@@ -52,10 +53,10 @@ public class QTD {
 					}
 				}
 
-				upgradeTime = Util.now();
+				upgradeCheckTime = Util.now();
 			}
 
-			if (Util.now() - levelCheckTime > lvCheckSlice) {
+			if (Util.now() - levelCheckTime > levelInterval) {
 				BufferedImage nowLvImg = slave.screenShot(levelArea);
 				boolean result = Util.compare(preLvImg, nowLvImg);
 				if (!result) {
