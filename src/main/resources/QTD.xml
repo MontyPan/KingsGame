@@ -5,6 +5,7 @@
 	<entry key="upgradeOrder">2, 0, 3, 5, 6, 4, 1</entry>
 	
 	<!-- 時間間隔區，單位：秒 -->
+	<entry key="diamondInterval">60</entry>
 	<entry key="levelInterval">180</entry>
 	<entry key="upgradeInterval">45</entry>
 </properties>

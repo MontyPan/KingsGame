@@ -26,6 +26,14 @@ public class Setting extends DoubleProperties {
 		}
 	}
 
+	public int diamondInterval() {
+		try {
+			return Integer.parseInt(getProperty("diamondInterval"));
+		} catch (Exception e) {
+			return 60;
+		}
+	}
+
 	public int levelInterval() {
 		try {
 			return Integer.parseInt(getProperty("levelInterval"));
