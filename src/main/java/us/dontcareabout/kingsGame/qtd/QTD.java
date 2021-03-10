@@ -2,11 +2,13 @@ package us.dontcareabout.kingsGame.qtd;
 
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 
 import javax.swing.JOptionPane;
 
 import us.dontcareabout.kingsGame.common.Rect;
 import us.dontcareabout.kingsGame.common.Slave;
+import us.dontcareabout.kingsGame.common.Task;
 import us.dontcareabout.kingsGame.common.Util;
 import us.dontcareabout.kingsGame.common.XY;
 
@@ -28,22 +30,72 @@ public class QTD {
 
 	private final Slave slave;
 	private final Setting setting = new Setting();
+	private final ArrayList<Task> taskList = new ArrayList<>();
 
 	private int[] updateIndexOrder = setting.upgradeOrder();
-	private final long diamondInterval = setting.diamondInterval() * 1000;
-	private final long levelInterval = setting.levelInterval() * 1000;
-	private final long upgradeInterval = setting.upgradeInterval() * 1000;
-
 	private boolean observeMode;
 
-	private long diamondAdCheckTime = Util.now();
-	private long levelCheckTime = Util.now();
-	private long upgradeCheckTime = Util.now();
+	private Task diamondTask = new Task(setting.diamondInterval() * 1000) {
+		@Override
+		protected void process() {
+			if (!hasDiamondAD()) { return; }
 
-	private BufferedImage preLvImg;
+			//因為實際操作是交給腳本處理，slave 本身沒啥停頓
+			//所以一旦點廣告就得讓其他的 check time 往後延
+			upgradeTask.delay(interval);
+			levelCompareTask.delay(interval);
+
+			slave.click(new XY(300, 300));	//隨便點個空地確保是 active window
+			slave.sleep(1);
+			slave.keyin(KeyEvent.VK_CONTROL, KeyEvent.VK_ALT, KeyEvent.VK_D);
+		}
+	};
+	private Task upgradeTask = new Task(setting.upgradeInterval() * 1000) {
+		@Override
+		protected void process() {
+			if (observeMode) { return; }
+			Util.log("升級中！");
+			for (int i : updateIndexOrder) {
+				XY crewXY = getCrewXY(i);
+				while (isCanUpgrade(crewXY)) {
+					slave.click(crewXY);
+					slave.sleep(1);
+				}
+			}
+		}
+	};
+	private Task levelCompareTask = new Task(setting.levelInterval() * 1000) {
+		private BufferedImage preLvImg;
+
+		@Override
+		protected void process() {
+			if (preLvImg == null) {
+				preLvImg = slave.screenShot(levelArea);
+				return;
+			}
+
+			BufferedImage nowLvImg = slave.screenShot(levelArea);
+			boolean result = Util.compare(preLvImg, nowLvImg);
+
+			if (!result) {
+				preLvImg = nowLvImg;
+				return;
+			}
+
+			if (observeMode) {
+				JOptionPane.showMessageDialog(null, "卡關了，大佬？");
+			} else {
+				Util.log("重生啦～～～");
+				doRebirth();
+			}
+		}
+	};
 
 	private QTD() throws Exception {
 		slave = new Slave();
+		taskList.add(diamondTask);
+		taskList.add(upgradeTask);
+		taskList.add(levelCompareTask);
 	}
 
 	public void setMode(boolean isObserveMode) {
@@ -52,70 +104,13 @@ public class QTD {
 
 	public void start() {
 		Util.log("觀察模式：" + observeMode);
-		preLvImg = slave.screenShot(levelArea);
 
 		while(true) {
 			slave.sleep(1);
 
-			if (Util.now() - diamondAdCheckTime > diamondInterval) {
-				diamondAdProcess();
+			for (Task task : taskList) {
+				task.check();
 			}
-
-			if (Util.now() - upgradeCheckTime > upgradeInterval) {
-				upgradeProcess();
-			}
-
-			if (Util.now() - levelCheckTime > levelInterval) {
-				levelCompareProcess();
-			}
-		}
-	}
-
-	private void diamondAdProcess() {
-		diamondAdCheckTime = Util.now();
-
-		if (!hasDiamondAD()) { return; }
-
-		//因為實際操作是交給腳本處理，slave 本身沒啥停頓
-		//所以一旦點廣告就得讓其他的 check time 往後延
-		upgradeCheckTime += diamondInterval;
-		levelCheckTime += diamondInterval;
-
-		slave.click(new XY(300, 300));	//隨便點個空地確保是 active window
-		slave.sleep(1);
-		slave.keyin(KeyEvent.VK_CONTROL, KeyEvent.VK_ALT, KeyEvent.VK_D);
-	}
-
-	private void upgradeProcess() {
-		upgradeCheckTime = Util.now();
-
-		if (observeMode) { return; }
-
-		for (int i : updateIndexOrder) {
-			XY crewXY = getCrewXY(i);
-			while (isCanUpgrade(crewXY)) {
-				slave.click(crewXY);
-				slave.sleep(1);
-			}
-		}
-	}
-
-	private void levelCompareProcess() {
-		levelCheckTime = Util.now();
-
-		BufferedImage nowLvImg = slave.screenShot(levelArea);
-		boolean result = Util.compare(preLvImg, nowLvImg);
-
-		if (!result) {
-			preLvImg = nowLvImg;
-			return;
-		}
-
-		if (observeMode) {
-			JOptionPane.showMessageDialog(null, "卡關了，大佬？");
-		} else {
-			Util.log("重生啦～～～");
-			doRebirth();
 		}
 	}
 
