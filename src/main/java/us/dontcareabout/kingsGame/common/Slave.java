@@ -14,6 +14,24 @@ public class Slave {
 		robot = new Robot();
 	}
 
+	public void keyin(int key, int... moreKey) {
+		//如果沒 delay，則組合 key 會發送失敗
+		robot.keyPress(key);
+		robot.delay(10);
+
+		for (int k : moreKey) {
+			robot.keyPress(k);
+			robot.delay(10);
+		}
+
+		for (int i = moreKey.length - 1; i >= 0; i--) {
+			robot.keyRelease(moreKey[i]);
+			robot.delay(10);
+		}
+
+		robot.keyRelease(key);
+	}
+
 	public void click(XY xy) {
 		robot.mouseMove(xy.x, xy.y);
 		robot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
