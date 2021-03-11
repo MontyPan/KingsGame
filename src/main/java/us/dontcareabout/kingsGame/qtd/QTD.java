@@ -4,6 +4,7 @@ import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
+import javax.imageio.ImageIO;
 import javax.swing.JOptionPane;
 
 import us.dontcareabout.kingsGame.common.Rect;
@@ -19,6 +20,9 @@ public class QTD {
 	private static final int rebirthBloodColor = -6547416;
 	private static final int diamondAdColor = -5385324;
 
+	//廣告大概是 30sec，加上一些操作，保險一點算 60sec
+	private static final long adInterval = 60000;
+
 	private static final XY rebirth = new XY(100, 340);
 	private static final XY rebirthConfirm = new XY(335, 495);
 	private static final XY rebirthJoinConfirm = new XY(70, 495);
@@ -27,14 +31,33 @@ public class QTD {
 	private static final XY crew1 = new XY(25, 520);
 	private static final XY diamondAd = new XY(770, 290);
 	private static final Rect levelArea = new Rect(440, 55, 35, 15);
+	private static final Rect buyArea = new Rect(235, 105, 40, 20);
 
 	private final Slave slave;
+	private final BufferedImage speedBtnImg;
+
 	private final Setting setting = new Setting();
 	private final ArrayList<Task> taskList = new ArrayList<>();
 
 	private int[] updateIndexOrder = setting.upgradeOrder();
 	private boolean observeMode;
 
+	private Task speedingTask = new Task(16 * 60 * 1000) {
+		@Override
+		protected void process() {
+			if (!isCanSpeeding()) { return; }
+
+			//因為實際操作是交給腳本處理，slave 本身沒啥停頓
+			//所以一旦點廣告就得讓其他的 check time 往後延
+			diamondTask.delay(adInterval);
+			upgradeTask.delay(adInterval);
+			levelCompareTask.delay(adInterval);
+
+			slave.click(new XY(300, 300));	//隨便點個空地確保是 active window
+			slave.sleep(1);
+			slave.keyin(KeyEvent.VK_CONTROL, KeyEvent.VK_ALT, KeyEvent.VK_P);
+		}
+	};
 	private Task diamondTask = new Task(setting.diamondInterval() * 1000) {
 		@Override
 		protected void process() {
@@ -42,8 +65,9 @@ public class QTD {
 
 			//因為實際操作是交給腳本處理，slave 本身沒啥停頓
 			//所以一旦點廣告就得讓其他的 check time 往後延
-			upgradeTask.delay(interval);
-			levelCompareTask.delay(interval);
+			speedingTask.delay(adInterval);
+			upgradeTask.delay(adInterval);
+			levelCompareTask.delay(adInterval);
 
 			slave.click(new XY(300, 300));	//隨便點個空地確保是 active window
 			slave.sleep(1);
@@ -54,7 +78,7 @@ public class QTD {
 		@Override
 		protected void process() {
 			if (observeMode) { return; }
-			Util.log("升級中！");
+
 			for (int i : updateIndexOrder) {
 				XY crewXY = getCrewXY(i);
 				while (isCanUpgrade(crewXY)) {
@@ -93,9 +117,12 @@ public class QTD {
 
 	private QTD() throws Exception {
 		slave = new Slave();
+		taskList.add(speedingTask);
 		taskList.add(diamondTask);
 		taskList.add(upgradeTask);
 		taskList.add(levelCompareTask);
+
+		speedBtnImg = ImageIO.read(this.getClass().getClassLoader().getResourceAsStream("QTD/buy.png"));
 	}
 
 	public void setMode(boolean isObserveMode) {
@@ -116,6 +143,10 @@ public class QTD {
 
 	private XY getCrewXY(int index) {
 		return new XY(crew1.x + index * crewWidth, crew1.y);
+	}
+
+	private boolean isCanSpeeding() {
+		return Util.compare(speedBtnImg, slave.screenShot(buyArea));
 	}
 
 	private boolean isCanUpgrade(XY xy) {
