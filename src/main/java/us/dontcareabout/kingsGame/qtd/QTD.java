@@ -23,6 +23,7 @@ public class QTD {
 	//廣告大概是 30sec，加上一些操作，保險一點算 60sec
 	private static final long adInterval = 60000;
 
+	protected static final XY safeClick = new XY(300, 300);
 	private static final XY rebirth = new XY(100, 340);
 	private static final XY rebirthConfirm = new XY(335, 495);
 	private static final XY rebirthJoinConfirm = new XY(70, 495);
@@ -42,7 +43,7 @@ public class QTD {
 	private int[] updateIndexOrder = setting.upgradeOrder();
 	private boolean observeMode;
 
-	private Task speedingTask = new Task(16 * 60 * 1000) {
+	private Task speedingTask = new Task(adInterval) {
 		@Override
 		protected void process() {
 			if (!isCanSpeeding()) { return; }
@@ -53,12 +54,14 @@ public class QTD {
 			upgradeTask.delay(adInterval);
 			levelCompareTask.delay(adInterval);
 
-			slave.click(new XY(300, 300));	//隨便點個空地確保是 active window
-			slave.sleep(1);
-			slave.keyin(KeyEvent.VK_CONTROL, KeyEvent.VK_ALT, KeyEvent.VK_P);
+			//每次加速維持 15 分鐘，所以下次執行期間往後延
+			//做這個只是比較有效率、不用一直做 isCanSpeeding() 而已 XD
+			this.delay(adInterval * 16);
+
+			doMacro(KeyEvent.VK_P);
 		}
 	};
-	private Task diamondTask = new Task(setting.diamondInterval() * 1000) {
+	private Task diamondTask = new Task(adInterval * 3) {
 		@Override
 		protected void process() {
 			if (!hasDiamondAD()) { return; }
@@ -69,9 +72,7 @@ public class QTD {
 			upgradeTask.delay(adInterval);
 			levelCompareTask.delay(adInterval);
 
-			slave.click(new XY(300, 300));	//隨便點個空地確保是 active window
-			slave.sleep(1);
-			slave.keyin(KeyEvent.VK_CONTROL, KeyEvent.VK_ALT, KeyEvent.VK_D);
+			doMacro(KeyEvent.VK_D);
 		}
 	};
 	private Task upgradeTask = new Task(setting.upgradeInterval() * 1000) {
@@ -168,6 +169,12 @@ public class QTD {
 		slave.click(isJoinRebirth() ? rebirthJoinConfirm : rebirthConfirm);
 		slave.sleep(5);
 		slave.click(rebirthEnd);
+	}
+
+	private void doMacro(int key) {
+		slave.click(safeClick);	//隨便點個空地確保是 active window
+		slave.sleep(1);
+		slave.keyin(KeyEvent.VK_CONTROL, KeyEvent.VK_ALT, key);
 	}
 
 	public static void main(String[] args) throws Exception {
