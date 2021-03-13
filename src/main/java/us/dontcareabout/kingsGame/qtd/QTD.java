@@ -1,5 +1,6 @@
 package us.dontcareabout.kingsGame.qtd;
 
+import java.awt.Color;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -16,7 +17,9 @@ import us.dontcareabout.kingsGame.common.XY;
 //Ver 0.0.1
 public class QTD {
 	private static final int crewWidth = 140;
-	private static final int updateEnable = -4444444;
+	private static final Color upgradeEnable = new Color(-4352430);
+	/** 數值越大、顏色相異容忍度越大 */
+	private static final int upgradeDiffThreshold = 90;
 	private static final int rebirthBloodColor = -6547416;
 	private static final int diamondAdColor = -5385324;
 
@@ -82,7 +85,8 @@ public class QTD {
 
 			for (int i : updateIndexOrder) {
 				XY crewXY = getCrewXY(i);
-				while (isCanUpgrade(crewXY)) {
+
+				for (int count = 0; count < 10 && isCanUpgrade(crewXY); count++) {
 					slave.click(crewXY);
 					slave.sleep(1);
 				}
@@ -151,8 +155,7 @@ public class QTD {
 	}
 
 	private boolean isCanUpgrade(XY xy) {
-		//TODO 改為色系近似判斷
-		return slave.getColor(xy).getRGB() > updateEnable;
+		return Util.colorDiff(slave.getColor(xy), upgradeEnable) < upgradeDiffThreshold;
 	}
 
 	private boolean isJoinRebirth() {
