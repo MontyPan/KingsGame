@@ -24,7 +24,7 @@ public class QTD {
 	private static final int diamondAdColor = -5385324;
 
 	//廣告大概是 30sec，加上一些操作，保險一點算 60sec
-	private static final long adInterval = 60000;
+	private static final int adInterval = 60;
 
 	protected static final XY safeClick = new XY(300, 300);
 	private static final XY rebirth = new XY(100, 340);
@@ -46,7 +46,7 @@ public class QTD {
 	private int[] updateIndexOrder = setting.upgradeOrder();
 	private boolean observeMode;
 
-	private Task speedingTask = new Task(adInterval) {
+	private Task speedingTask = new Task(adInterval, adInterval * 15) {
 		@Override
 		protected void process() {
 			if (!isCanSpeeding()) { return; }
@@ -78,7 +78,7 @@ public class QTD {
 			doMacro(KeyEvent.VK_D);
 		}
 	};
-	private Task upgradeTask = new Task(setting.upgradeInterval() * 1000) {
+	private Task upgradeTask = new Task(setting.upgradeInterval()) {
 		@Override
 		protected void process() {
 			if (observeMode) { return; }
@@ -93,7 +93,7 @@ public class QTD {
 			}
 		}
 	};
-	private Task levelCompareTask = new Task(setting.levelInterval() * 1000) {
+	private Task levelCompareTask = new Task(setting.levelInterval()) {
 		private BufferedImage preLvImg;
 
 		@Override
