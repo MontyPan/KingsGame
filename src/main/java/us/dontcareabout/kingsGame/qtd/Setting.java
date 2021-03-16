@@ -1,8 +1,6 @@
 package us.dontcareabout.kingsGame.qtd;
 
-import us.dontcareabout.kingsGame.common.DoubleProperties;
-
-public class Setting extends DoubleProperties {
+public class Setting extends us.dontcareabout.java.common.DoubleProperties {
 	private static final int[] defaultOrder = {0, 1, 2, 3, 4, 5, 6};
 
 	public Setting() {
