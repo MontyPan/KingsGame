@@ -8,9 +8,18 @@ import java.awt.event.InputEvent;
 import java.awt.image.BufferedImage;
 
 public class Slave {
+	private static Slave instance;
+	static {
+		try { instance = new Slave(); } catch(Exception e) {}
+	}
+	public static Slave call() {
+		if (instance == null) { throw new IllegalStateException(); }
+		return instance;
+	}
+
 	private final Robot robot;
 
-	public Slave() throws Exception {
+	private Slave() throws Exception {
 		robot = new Robot();
 	}
 

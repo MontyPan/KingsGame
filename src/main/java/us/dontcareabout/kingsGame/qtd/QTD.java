@@ -37,7 +37,6 @@ public class QTD {
 	private static final Rect levelArea = new Rect(440, 55, 35, 15);
 	private static final Rect buyArea = new Rect(235, 105, 40, 20);
 
-	private final Slave slave;
 	private final BufferedImage speedBtnImg;
 
 	private final Setting setting = new Setting();
@@ -83,6 +82,8 @@ public class QTD {
 		protected void process() {
 			if (observeMode) { return; }
 
+			Slave slave = Slave.call();
+
 			for (int i : updateIndexOrder) {
 				XY crewXY = getCrewXY(i);
 
@@ -98,6 +99,8 @@ public class QTD {
 
 		@Override
 		protected void process() {
+			Slave slave = Slave.call();
+
 			if (preLvImg == null) {
 				preLvImg = slave.screenShot(levelArea);
 				return;
@@ -120,8 +123,7 @@ public class QTD {
 		}
 	};
 
-	private QTD() throws Exception {
-		slave = new Slave();
+	QTD() throws Exception {
 		taskList.add(speedingTask);
 		taskList.add(diamondTask);
 		taskList.add(upgradeTask);
@@ -138,7 +140,7 @@ public class QTD {
 		Util.log("觀察模式：" + observeMode);
 
 		while(true) {
-			slave.sleep(1);
+			Slave.call().sleep(1);
 
 			for (Task task : taskList) {
 				task.check();
@@ -151,22 +153,23 @@ public class QTD {
 	}
 
 	private boolean isCanSpeeding() {
-		return Util.compare(speedBtnImg, slave.screenShot(buyArea));
+		return Util.compare(speedBtnImg, Slave.call().screenShot(buyArea));
 	}
 
 	private boolean isCanUpgrade(XY xy) {
-		return Util.colorDiff(slave.getColor(xy), upgradeEnable) < upgradeDiffThreshold;
+		return Util.colorDiff(Slave.call().getColor(xy), upgradeEnable) < upgradeDiffThreshold;
 	}
 
 	private boolean isJoinRebirth() {
-		return slave.getColor(rebirthBlood).getRGB() == rebirthBloodColor;
+		return Slave.call().getColor(rebirthBlood).getRGB() == rebirthBloodColor;
 	}
 
 	private boolean hasDiamondAD() {
-		return slave.getColor(diamondAd).getRGB() == diamondAdColor;
+		return Slave.call().getColor(diamondAd).getRGB() == diamondAdColor;
 	}
 
 	private void doRebirth() {
+		Slave slave = Slave.call();
 		slave.click(rebirth);
 		slave.sleep(5);
 		slave.click(isJoinRebirth() ? rebirthJoinConfirm : rebirthConfirm);
@@ -175,6 +178,7 @@ public class QTD {
 	}
 
 	private void doMacro(int key) {
+		Slave slave = Slave.call();
 		slave.click(safeClick);	//隨便點個空地確保是 active window
 		slave.sleep(1);
 		slave.keyin(KeyEvent.VK_CONTROL, KeyEvent.VK_ALT, key);
