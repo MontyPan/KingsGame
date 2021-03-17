@@ -10,12 +10,13 @@ public class Setting extends us.dontcareabout.java.common.DoubleProperties {
 	public int[] upgradeOrder() {
 		String[] values = getProperty("upgradeOrder").split(",");
 
+		int max = 7;	//螢幕最多塞 7 個角色
 		try {
-			int[] result = new int[7];
+			int[] result = new int[Math.min(values.length, max)];
 
 			for (int i = 0; i < result.length; i++) {
 				int v = Integer.parseInt(values[i].trim());
-				result[i] = v > result.length ? 0 : v;
+				result[i] = v >= max ? 0 : v;
 			}
 
 			return result;
