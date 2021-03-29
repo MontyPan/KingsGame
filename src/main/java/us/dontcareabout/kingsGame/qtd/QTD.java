@@ -6,7 +6,6 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
-import javax.swing.JOptionPane;
 
 import us.dontcareabout.kingsGame.common.Rect;
 import us.dontcareabout.kingsGame.common.Slave;
@@ -43,7 +42,6 @@ public class QTD {
 	private final ArrayList<Task> taskList = new ArrayList<>();
 
 	private int[] updateIndexOrder = setting.upgradeOrder();
-	private boolean observeMode;
 
 	private Task speedingTask = new Task(adInterval, adInterval * 15) {
 		@Override
@@ -80,8 +78,6 @@ public class QTD {
 	private Task upgradeTask = new Task(setting.upgradeInterval()) {
 		@Override
 		protected void process() {
-			if (observeMode) { return; }
-
 			Slave slave = Slave.call();
 
 			for (int i : updateIndexOrder) {
@@ -114,12 +110,8 @@ public class QTD {
 				return;
 			}
 
-			if (observeMode) {
-				JOptionPane.showMessageDialog(null, "卡關了，大佬？");
-			} else {
-				Util.log("重生啦～～～");
-				doRebirth();
-			}
+			Util.log("重生啦～～～");
+			doRebirth();
 		}
 	};
 
@@ -132,13 +124,7 @@ public class QTD {
 		speedBtnImg = ImageIO.read(this.getClass().getClassLoader().getResourceAsStream("QTD/buy.png"));
 	}
 
-	public void setMode(boolean isObserveMode) {
-		observeMode = isObserveMode;
-	}
-
 	public void start() {
-		Util.log("觀察模式：" + observeMode);
-
 		while(true) {
 			Slave.call().sleep(1);
 
@@ -185,9 +171,7 @@ public class QTD {
 	}
 
 	public static void main(String[] args) throws Exception {
-		int type = JOptionPane.showConfirmDialog(null, "觀察模式？", "", JOptionPane.YES_NO_OPTION);
 		QTD slave = new QTD();
-		slave.setMode(type == 0);
 		slave.start();
 	}
 }
