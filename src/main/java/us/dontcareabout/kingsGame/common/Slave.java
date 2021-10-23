@@ -47,6 +47,19 @@ public class Slave {
 		robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
 	}
 
+	public void pressAndMove(XY start, int distance) {
+		int way = distance < 0 ? -1 : 1;
+
+		robot.mouseMove(start.x, start.y);
+		robot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+		robot.delay(500);
+		for (int i = 1; i <= Math.abs(distance); i++) {
+			robot.mouseMove(start.x, start.y + (i * way));
+			robot.delay(50);
+		}
+		robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+	}
+
 	public Color getColor(XY xy) {
 		return robot.getPixelColor(xy.x, xy.y);
 	}
