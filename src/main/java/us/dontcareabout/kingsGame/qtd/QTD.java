@@ -19,18 +19,12 @@ public class QTD {
 	private static final Color upgradeEnable = new Color(-4352430);
 	/** 數值越大、顏色相異容忍度越大 */
 	private static final int upgradeDiffThreshold = 90;
-	private static final int rebirthBloodColor = -6547416;
+
 	private static final int diamondAdColor = -5385324;
 
 	//廣告大概是 30sec，加上一些操作，保險一點算 60sec
 	private static final int adInterval = 60;
 
-	protected static final XY safeClick = new XY(300, 300);
-	private static final XY rebirth = new XY(100, 340);
-	private static final XY rebirthConfirm = new XY(335, 495);
-	private static final XY rebirthJoinConfirm = new XY(70, 495);
-	private static final XY rebirthEnd = new XY(450, 400);
-	private static final XY rebirthBlood = new XY(80, 320);
 	private static final XY crew1 = new XY(25, 520);
 	private static final XY diamondAd = new XY(770, 290);
 	private static final Rect levelArea = new Rect(440, 55, 35, 15);
@@ -111,13 +105,13 @@ public class QTD {
 			}
 
 			Util.log("重生啦～～～");
-			doRebirth();
+			QtdSlave.doAscend();
 		}
 	};
 
 	QTD() throws Exception {
-		taskList.add(speedingTask);
-		taskList.add(diamondTask);
+//		taskList.add(speedingTask);
+//		taskList.add(diamondTask);
 		taskList.add(upgradeTask);
 		taskList.add(levelCompareTask);
 
@@ -146,26 +140,14 @@ public class QTD {
 		return Util.colorDiff(Slave.call().getColor(xy), upgradeEnable) < upgradeDiffThreshold;
 	}
 
-	private boolean isJoinRebirth() {
-		return Slave.call().getColor(rebirthBlood).getRGB() == rebirthBloodColor;
-	}
 
 	private boolean hasDiamondAD() {
 		return Slave.call().getColor(diamondAd).getRGB() == diamondAdColor;
 	}
 
-	private void doRebirth() {
-		Slave slave = Slave.call();
-		slave.click(rebirth);
-		slave.sleep(5);
-		slave.click(isJoinRebirth() ? rebirthJoinConfirm : rebirthConfirm);
-		slave.sleep(5);
-		slave.click(rebirthEnd);
-	}
-
 	private void doMacro(int key) {
 		Slave slave = Slave.call();
-		slave.click(safeClick);	//隨便點個空地確保是 active window
+		slave.click(QtdSlave.safePoint);	//隨便點個空地確保是 active window
 		slave.sleep(1);
 		slave.keyin(KeyEvent.VK_CONTROL, KeyEvent.VK_ALT, key);
 	}
