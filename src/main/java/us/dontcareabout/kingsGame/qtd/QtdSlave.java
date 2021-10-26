@@ -1,5 +1,8 @@
 package us.dontcareabout.kingsGame.qtd;
 
+import java.util.Calendar;
+import java.util.Date;
+
 import us.dontcareabout.kingsGame.common.Slave;
 import us.dontcareabout.kingsGame.common.XY;
 
@@ -20,11 +23,25 @@ public class QtdSlave {
 	private static final XY ascendOnSeasonEnd = new XY(450, 450);
 	private static final XY ascendBlood = new XY(80, 320);
 
+	/** 同時也是返回主畫面的按鈕 */
+	private static final XY teamButton = new XY(35, 350);
+
 	/** {@link Slave#sleep(int)} */
 	public static void sleep(int second) {
 		slave.sleep(second);
 	}
 
+	/**
+	 * @param i 值域：1～3
+	 */
+	public static void swapTeam(int i) {
+		slave.click(teamButton);
+		slave.sleep(3);
+		slave.click(new XY(100 + 50 * (i - 1), 350));
+		slave.sleep(3);
+		slave.click(teamButton);
+	}
+	
 	public static void doAscend() {
 		slave.click(ascendButton);
 		sleep(5);
