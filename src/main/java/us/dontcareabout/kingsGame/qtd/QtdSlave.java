@@ -11,7 +11,6 @@ import us.dontcareabout.kingsGame.common.XY;
  */
 public class QtdSlave {
 	private static final Slave slave = Slave.call();
-	private static final int rebirthBloodColor = -6547416;
 
 	/** 在基本畫面中，點下去不會造成任何引想的點 */
 	public static final XY safePoint = new XY(300, 300);
@@ -41,7 +40,7 @@ public class QtdSlave {
 		slave.sleep(3);
 		slave.click(teamButton);
 	}
-	
+
 	public static void doAscend() {
 		slave.click(ascendButton);
 		sleep(5);
@@ -51,10 +50,16 @@ public class QtdSlave {
 	}
 
 	public static boolean isOffSeason() {
-		return true;	//FIXME
+		Calendar c = Calendar.getInstance();
+		c.set(2021, 9, 25, 8, 0, 0);	//到 0800 之前都還是休賽狀態
+		long startTime = c.getTimeInMillis();
+		long nowTime = new Date().getTime();
+		long value = (nowTime - startTime) / 86400000 % 14;
+		return value == 0 || value == 1;
 	}
 
 	public static boolean isJoinAscend() {
-		return slave.getColor(ascendBlood).getRGB() == rebirthBloodColor;
+		int color = slave.getColor(ascendBlood).getRGB();
+		return color == -5629928;
 	}
 }
