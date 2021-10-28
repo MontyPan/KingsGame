@@ -1,9 +1,11 @@
 package us.dontcareabout.kingsGame.qtd;
 
+import java.awt.Color;
 import java.util.Calendar;
 import java.util.Date;
 
 import us.dontcareabout.kingsGame.common.Slave;
+import us.dontcareabout.kingsGame.common.Util;
 import us.dontcareabout.kingsGame.common.XY;
 
 /**
@@ -25,9 +27,30 @@ public class QtdSlave {
 	/** 同時也是返回主畫面的按鈕 */
 	private static final XY teamButton = new XY(35, 350);
 
+	private static final XY[] crewXY = new XY[7];
+	static {
+		XY crew1 = new XY(25, 520);
+		int crewWidth = 140;
+
+		for (int i = 0; i < crewXY.length; i++) {
+			crewXY[i] = new XY(crew1.x + i * crewWidth, crew1.y);
+		}
+	}
+	private static final Color upgradeEnable = new Color(-4352430);
+	/** 數值越大、顏色相異容忍度越大 */
+	private static final int upgradeDiffThreshold = 90;
+
+
 	/** {@link Slave#sleep(int)} */
 	public static void sleep(int second) {
 		slave.sleep(second);
+	}
+
+	public static boolean upgradeCrew(int index) {
+		if (!isUpgradable(index)) { return false; }
+
+		slave.click(crewXY[index]);
+		return true;
 	}
 
 	/**
@@ -61,5 +84,9 @@ public class QtdSlave {
 	public static boolean isJoinAscend() {
 		int color = slave.getColor(ascendBlood).getRGB();
 		return color == -5629928;
+	}
+
+	public static boolean isUpgradable(int index) {
+		return Util.colorDiff(slave.getColor(crewXY[index]), upgradeEnable) < upgradeDiffThreshold;
 	}
 }
