@@ -5,6 +5,8 @@ import java.awt.image.BufferedImage;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import javax.imageio.ImageIO;
+
 public class Util {
 	private static final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
 
@@ -36,5 +38,16 @@ public class Util {
 		}
 
 		return true;
+	}
+
+	public static BufferedImage read(String path) {
+		try {
+			return ImageIO.read(
+				Class.forName("us.dontcareabout.kingsGame.common.Util").getClassLoader().getResourceAsStream(path)
+			);
+		} catch(Exception e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 }
