@@ -1,9 +1,11 @@
 package us.dontcareabout.kingsGame.qtd;
 
 import java.awt.Color;
+import java.awt.image.BufferedImage;
 import java.util.Calendar;
 import java.util.Date;
 
+import us.dontcareabout.kingsGame.common.Rect;
 import us.dontcareabout.kingsGame.common.Slave;
 import us.dontcareabout.kingsGame.common.Util;
 import us.dontcareabout.kingsGame.common.XY;
@@ -40,6 +42,15 @@ public class QtdSlave {
 	/** 數值越大、顏色相異容忍度越大 */
 	private static final int upgradeDiffThreshold = 90;
 
+	private static int lvX = 0;
+	private static final XY lvMultiple = new XY(170, 395);
+	private static final Rect lvMultipleArea = new Rect(new XY(130, 380), new XY(80, 30));
+	private static final BufferedImage[] lvMultipleImage = new BufferedImage[3];
+	static {
+		for (int i = 0; i < lvMultipleImage.length; i++) {
+			lvMultipleImage[i] = Util.read("QTD/LvX" + i + ".png");
+		}
+	}
 
 	/** {@link Slave#sleep(int)} */
 	public static void sleep(int second) {
@@ -51,6 +62,23 @@ public class QtdSlave {
 
 		slave.click(crewXY[index]);
 		return true;
+	}
+
+	/**
+	 * @return 值域：0～2。代表 Lv 倍數為 10^n
+	 */
+	public static int getLvX() { return lvX; }
+
+	/**
+	 * @param n 值域：0～2。代表 Lv 倍數為 10^n
+	 */
+	public static void swapLvMultiple(int n) {
+		lvX = n;
+
+		while(!Util.compare(lvMultipleImage[n], slave.screenShot(lvMultipleArea))) {
+			slave.click(lvMultiple);
+			slave.sleep(2);
+		}
 	}
 
 	/**
