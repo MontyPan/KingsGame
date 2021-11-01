@@ -75,9 +75,13 @@ public class QtdSlave {
 	public static void swapLvMultiple(int n) {
 		lvX = n;
 
-		while(!Util.compare(lvMultipleImage[n], slave.screenShot(lvMultipleArea))) {
+		//為了預防畫面不是預期的樣子，所以只嘗試三次、避免無窮迴圈
+		int count = 0;
+
+		while(count != 3 && !Util.compare(lvMultipleImage[n], slave.screenShot(lvMultipleArea))) {
 			slave.click(lvMultiple);
 			slave.sleep(2);
+			count++;
 		}
 	}
 
