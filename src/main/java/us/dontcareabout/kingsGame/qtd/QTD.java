@@ -1,91 +1,57 @@
 package us.dontcareabout.kingsGame.qtd;
 
-import java.awt.Color;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-
-import javax.imageio.ImageIO;
 
 import us.dontcareabout.kingsGame.common.Rect;
 import us.dontcareabout.kingsGame.common.Slave;
 import us.dontcareabout.kingsGame.common.Task;
+import us.dontcareabout.kingsGame.common.TaskManager;
 import us.dontcareabout.kingsGame.common.Util;
-import us.dontcareabout.kingsGame.common.XY;
 
-//Ver 0.0.1
 public class QTD {
-	private static final int crewWidth = 140;
-	private static final Color upgradeEnable = new Color(-4352430);
-	/** 數值越大、顏色相異容忍度越大 */
-	private static final int upgradeDiffThreshold = 90;
-
-	private static final int diamondAdColor = -5385324;
-
-	//廣告大概是 30sec，加上一些操作，保險一點算 60sec
-	private static final int adInterval = 60;
-
-	private static final XY crew1 = new XY(25, 520);
-	private static final XY diamondAd = new XY(770, 290);
 	private static final Rect levelArea = new Rect(440, 55, 35, 15);
 	private static final Rect buyArea = new Rect(235, 105, 40, 20);
 
-	private final BufferedImage speedBtnImg;
-
 	private final Setting setting = new Setting();
-	private final ArrayList<Task> taskList = new ArrayList<>();
 
-	private int[] updateIndexOrder = setting.upgradeOrder();
+	private int[] updateIndexOrder = {1};
 
-	private Task speedingTask = new Task(adInterval, adInterval * 15) {
-		@Override
-		protected void process() {
-			if (!isCanSpeeding()) { return; }
+	private int team1 = 1;
 
-			//因為實際操作是交給腳本處理，slave 本身沒啥停頓
-			//所以一旦點廣告就得讓其他的 check time 往後延
-			diamondTask.delay(adInterval);
-			upgradeTask.delay(adInterval);
-			levelCompareTask.delay(adInterval);
-
-			//每次加速維持 15 分鐘，所以下次執行期間往後延
-			//做這個只是比較有效率、不用一直做 isCanSpeeding() 而已 XD
-			this.delay(adInterval * 16);
-
-			doMacro(KeyEvent.VK_P);
+	private class UpgradeTask extends Task {
+		UpgradeTask() {
+			super("Upgrade", 0);
+			setInterval(setting.upgradeInterval());
 		}
-	};
-	private Task diamondTask = new Task(adInterval * 3) {
+
 		@Override
 		protected void process() {
-			if (!hasDiamondAD()) { return; }
-
-			//因為實際操作是交給腳本處理，slave 本身沒啥停頓
-			//所以一旦點廣告就得讓其他的 check time 往後延
-			speedingTask.delay(adInterval);
-			upgradeTask.delay(adInterval);
-			levelCompareTask.delay(adInterval);
-
-			doMacro(KeyEvent.VK_D);
-		}
-	};
-	private Task upgradeTask = new Task(setting.upgradeInterval()) {
-		@Override
-		protected void process() {
-			Slave slave = Slave.call();
-
 			for (int i : updateIndexOrder) {
-				XY crewXY = getCrewXY(i);
+				int count = 0;
 
-				for (int count = 0; count < 10 && isCanUpgrade(crewXY); count++) {
-					slave.click(crewXY);
-					slave.sleep(1);
+				while(count < 10 && QtdSlave.upgradeCrew(i)) {
+					QtdSlave.sleep(1);
+					count++;
 				}
+			}
+
+			team1--;
+
+			if (team1 == 0) {
+				Util.log("切換 team2");
+				QtdSlave.swapTeam(2);
+				updateIndexOrder = new int[]{3, 6};
 			}
 		}
 	};
-	private Task levelCompareTask = new Task(setting.levelInterval()) {
+	private class LevelCompareTask extends Task {
 		private BufferedImage preLvImg;
+
+		LevelCompareTask() {
+			super("Level Compare", 1);
+			setInterval(setting.levelInterval());
+		}
 
 		@Override
 		protected void process() {
@@ -104,45 +70,33 @@ public class QTD {
 				return;
 			}
 
+			int lvX = QtdSlave.getLvX();
+			if (lvX != 0) {
+				QtdSlave.swapLvMultiple(lvX - 1);
+				return;
+			}
+
 			Util.log("重生啦～～～");
 			QtdSlave.doAscend();
+			QtdSlave.sleep(3);
+			QtdSlave.swapTeam(1);
+			QtdSlave.sleep(3);
+			QtdSlave.swapLvMultiple(2);
+			team1 = 15;
+			updateIndexOrder = new int[]{1};
 		}
 	};
 
+	private TaskManager tm = new TaskManager();
+
 	QTD() throws Exception {
-//		taskList.add(speedingTask);
-//		taskList.add(diamondTask);
-		taskList.add(upgradeTask);
-		taskList.add(levelCompareTask);
-
-		speedBtnImg = ImageIO.read(this.getClass().getClassLoader().getResourceAsStream("QTD/buy.png"));
+		QtdSlave.swapLvMultiple(2);
+		tm.add(new UpgradeTask());
+		tm.add(new LevelCompareTask());
 	}
 
-	public void start() {
-		while(true) {
-			Slave.call().sleep(1);
-
-			for (Task task : taskList) {
-				task.check();
-			}
-		}
-	}
-
-	private XY getCrewXY(int index) {
-		return new XY(crew1.x + index * crewWidth, crew1.y);
-	}
-
-	private boolean isCanSpeeding() {
-		return Util.compare(speedBtnImg, Slave.call().screenShot(buyArea));
-	}
-
-	private boolean isCanUpgrade(XY xy) {
-		return Util.colorDiff(Slave.call().getColor(xy), upgradeEnable) < upgradeDiffThreshold;
-	}
-
-
-	private boolean hasDiamondAD() {
-		return Slave.call().getColor(diamondAd).getRGB() == diamondAdColor;
+	void start() {
+		tm.start();
 	}
 
 	private void doMacro(int key) {
