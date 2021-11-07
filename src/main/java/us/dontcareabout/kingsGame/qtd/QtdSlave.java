@@ -117,6 +117,36 @@ public class QtdSlave {
 	// ================ //
 
 
+	// ======== 目前推關關卡比較（Stage Compare）區 ======== //
+	private static final Rect levelArea = new Rect(440, 55, 35, 15);
+	private static BufferedImage preStageImage;
+	private static boolean stageDifferent = false;
+
+	/**
+	 * 比較目前關卡與上一次呼叫時是否有差異。
+	 * 本身不會回傳結果，而是要用 {@link #isStageDifferent()}。
+	 * 這樣就除了節省效率之外，
+	 * 也不用擔心 {@link #isStageDifferent()} 短時間內重複呼叫造成的問題。
+	 */
+	public static void compareStage() {
+		//第一次呼叫，preStageImage 會是空的，所以視為有差別
+		if (preStageImage == null) {
+			preStageImage = slave.screenShot(levelArea);
+			stageDifferent = true;
+			return;
+		}
+
+		BufferedImage nowLvImg = slave.screenShot(levelArea);
+		stageDifferent = !Util.compare(preStageImage, nowLvImg);
+		preStageImage = nowLvImg;
+	}
+
+	public static boolean isStageDifferent() {
+		return stageDifferent;
+	}
+	// ================ //
+
+
 	// ======== 切換編隊（Team）區 ======== //
 	/** 同時也是返回主畫面的按鈕 */
 	private static final XY teamButton = new XY(35, 350);
