@@ -1,15 +1,11 @@
 package us.dontcareabout.kingsGame.qtd;
 
-import java.awt.image.BufferedImage;
-
 import us.dontcareabout.kingsGame.common.Rect;
-import us.dontcareabout.kingsGame.common.Slave;
 import us.dontcareabout.kingsGame.common.Task;
 import us.dontcareabout.kingsGame.common.TaskManager;
 import us.dontcareabout.kingsGame.common.Util;
 
 public class QTD {
-	private static final Rect levelArea = new Rect(440, 55, 35, 15);
 	private static final Rect buyArea = new Rect(235, 105, 40, 20);
 
 	private final Setting setting = new Setting();
@@ -40,34 +36,21 @@ public class QTD {
 			if (team1 == 0) {
 				Util.log("切換 team2");
 				QtdSlave.swapTeam(2);
+				QtdSlave.sleep(2);
 				updateIndexOrder = new int[]{3, 6};
 			}
 		}
 	};
-	private class LevelCompareTask extends Task {
-		private BufferedImage preLvImg;
-
-		LevelCompareTask() {
-			super("Level Compare", 1);
+	private class StageCompareTask extends Task {
+		StageCompareTask() {
+			super("Stage Compare", 1);
 			setInterval(setting.levelInterval());
 		}
 
 		@Override
 		protected void process() {
-			Slave slave = Slave.call();
-
-			if (preLvImg == null) {
-				preLvImg = slave.screenShot(levelArea);
-				return;
-			}
-
-			BufferedImage nowLvImg = slave.screenShot(levelArea);
-			boolean result = Util.compare(preLvImg, nowLvImg);
-
-			if (!result) {
-				preLvImg = nowLvImg;
-				return;
-			}
+			QtdSlave.compareStage();
+			if (QtdSlave.isStageDifferent()) { return; }
 
 			int lvX = QtdSlave.getLvX();
 			if (lvX != 0) {
@@ -91,7 +74,7 @@ public class QTD {
 	QTD() throws Exception {
 		QtdSlave.swapLvX(2);
 		tm.add(new UpgradeTask());
-		tm.add(new LevelCompareTask());
+		tm.add(new StageCompareTask());
 	}
 
 	void start() {
