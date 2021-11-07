@@ -1,6 +1,5 @@
 package us.dontcareabout.kingsGame.qtd;
 
-import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 
 import us.dontcareabout.kingsGame.common.Rect;
@@ -72,7 +71,7 @@ public class QTD {
 
 			int lvX = QtdSlave.getLvX();
 			if (lvX != 0) {
-				QtdSlave.swapLvMultiple(lvX - 1);
+				QtdSlave.swapLvX(lvX - 1);
 				return;
 			}
 
@@ -81,7 +80,7 @@ public class QTD {
 			QtdSlave.sleep(3);
 			QtdSlave.swapTeam(1);
 			QtdSlave.sleep(3);
-			QtdSlave.swapLvMultiple(2);
+			QtdSlave.swapLvX(2);
 			team1 = 15;
 			updateIndexOrder = new int[]{1};
 		}
@@ -90,20 +89,13 @@ public class QTD {
 	private TaskManager tm = new TaskManager();
 
 	QTD() throws Exception {
-		QtdSlave.swapLvMultiple(2);
+		QtdSlave.swapLvX(2);
 		tm.add(new UpgradeTask());
 		tm.add(new LevelCompareTask());
 	}
 
 	void start() {
 		tm.start();
-	}
-
-	private void doMacro(int key) {
-		Slave slave = Slave.call();
-		slave.click(QtdSlave.safePoint);	//隨便點個空地確保是 active window
-		slave.sleep(1);
-		slave.keyin(KeyEvent.VK_CONTROL, KeyEvent.VK_ALT, key);
 	}
 
 	public static void main(String[] args) throws Exception {
