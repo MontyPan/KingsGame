@@ -161,5 +161,33 @@ public class QtdSlave {
 		slave.sleep(3);
 		slave.click(teamButton);
 	}
+
+	public static final BufferedImage[] teamActiveImage = new BufferedImage[3];
+	static {
+		for (int i = 0; i < teamActiveImage.length; i++) {
+			teamActiveImage[i] = Util.read("QTD/Team" + (i + 1) + ".png");
+		}
+	}
+
+	public static int getTeam() {
+		slave.click(teamButton);
+		slave.sleep(3);
+
+		for (int i = 0; i < teamActiveImage.length; i++) {
+			Rect rect = getTeamArea(i + 1);
+			if (Util.compare(teamActiveImage[i], slave.screenShot(rect))) {
+				slave.click(teamButton);
+				return i + 1;
+			}
+		}
+
+		slave.click(teamButton);
+		throw new IllegalStateException("Team 偵測出錯");
+	}
+
+	private static final XY teamSize = new XY(40, 40);
+	public static Rect getTeamArea(int i) {
+		return new Rect(new XY(82 + (i - 1) * 52, 322), teamSize);
+	}
 	// ================ //
 }
