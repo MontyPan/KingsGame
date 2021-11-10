@@ -10,9 +10,7 @@ public class QTD {
 
 	private final Setting setting = new Setting();
 
-	private int[] updateIndexOrder = {1};
-
-	private int team1 = 1;
+	private int team1 = 10;
 
 	private class UpgradeTask extends Task {
 		UpgradeTask() {
@@ -22,7 +20,7 @@ public class QTD {
 
 		@Override
 		protected void process() {
-			for (int i : updateIndexOrder) {
+			for (int i : QtdSlave.getUpgradeIndex()) {
 				int count = 0;
 
 				while(count < 10 && QtdSlave.upgradeCrew(i)) {
@@ -31,13 +29,14 @@ public class QTD {
 				}
 			}
 
+			if (QtdSlave.getTeam() != 1) { return; }
+
 			team1--;
 
 			if (team1 == 0) {
 				Util.log("切換 team2");
 				QtdSlave.swapTeam(2);
 				QtdSlave.sleep(2);
-				updateIndexOrder = new int[]{3, 6};
 			}
 		}
 	};
@@ -65,7 +64,6 @@ public class QTD {
 			QtdSlave.sleep(3);
 			QtdSlave.swapLvX(2);
 			team1 = 15;
-			updateIndexOrder = new int[]{1};
 		}
 	};
 
