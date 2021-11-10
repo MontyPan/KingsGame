@@ -160,6 +160,7 @@ public class QtdSlave {
 		slave.click(new XY(100 + 50 * (i - 1), 350));
 		slave.sleep(3);
 		slave.click(teamButton);
+		team = i;
 	}
 
 	public static final BufferedImage[] teamActiveImage = new BufferedImage[3];
@@ -169,7 +170,14 @@ public class QtdSlave {
 		}
 	}
 
+	private static int team = 0;
+
+	/**
+	 * @return 值域：1～3
+	 */
 	public static int getTeam() {
+		if (team != 0) { return team; }
+
 		slave.click(teamButton);
 		slave.sleep(3);
 
@@ -177,7 +185,8 @@ public class QtdSlave {
 			Rect rect = getTeamArea(i + 1);
 			if (Util.compare(teamActiveImage[i], slave.screenShot(rect))) {
 				slave.click(teamButton);
-				return i + 1;
+				team = i + 1;
+				return team;
 			}
 		}
 
@@ -186,8 +195,21 @@ public class QtdSlave {
 	}
 
 	private static final XY teamSize = new XY(40, 40);
+
+	/**
+	 * @param i 值域：1～3
+	 */
 	public static Rect getTeamArea(int i) {
 		return new Rect(new XY(82 + (i - 1) * 52, 322), teamSize);
+	}
+
+	private static final int[][] upgradeIndex = {
+		{1},
+		{3, 6}
+	};
+
+	public static int[] getUpgradeIndex() {
+		return upgradeIndex[getTeam() - 1];
 	}
 	// ================ //
 }
