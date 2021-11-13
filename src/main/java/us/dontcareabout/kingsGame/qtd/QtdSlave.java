@@ -11,11 +11,13 @@ import us.dontcareabout.kingsGame.common.Util;
 import us.dontcareabout.kingsGame.common.XY;
 
 /**
- * 座標、狀態、以及操作行為集散地。
+ * 座標、狀態（{@link State}）、以及操作行為集散地。
  * <p>
  * 操作行為內可能會包含 sleep 時間，但操作結束後不會預留 sleep 時間。
  */
 public class QtdSlave {
+	public static final State state = new State();
+
 	private static final Slave slave = Slave.call();
 
 	/** {@link Slave#sleep(int)} */
@@ -48,7 +50,7 @@ public class QtdSlave {
 		slave.click(isOffSeason() ? ascendOffSeasonEnd : ascendOnSeasonEnd);
 	}
 
-	public static boolean isJoinAscend() {
+	private static boolean isJoinAscend() {
 		int color = slave.getColor(ascendBlood).getRGB();
 		return color == -5629928;
 	}
@@ -56,7 +58,6 @@ public class QtdSlave {
 
 
 	// ======== 升級倍數（LvX）區 ======== //
-	private static int lvX = 0;
 	private static final XY lvMultiple = new XY(170, 395);
 	private static final Rect lvMultipleArea = new Rect(new XY(130, 380), new XY(80, 30));
 	private static final BufferedImage[] lvMultipleImage = new BufferedImage[3];
@@ -67,15 +68,10 @@ public class QtdSlave {
 	}
 
 	/**
-	 * @return 值域：0～2。代表 Lv 倍數為 10^n
-	 */
-	public static int getLvX() { return lvX; }
-
-	/**
 	 * @param n 值域：0～2。代表 Lv 倍數為 10^n
 	 */
 	public static void swapLvX(int n) {
-		lvX = n;
+		state.lvX = n;
 
 		//為了預防畫面不是預期的樣子，所以只嘗試三次、避免無窮迴圈
 		int count = 0;
@@ -101,7 +97,7 @@ public class QtdSlave {
 	}
 
 	public static boolean upgradeCrew(int index) {
-		if (!isUpgradable(index)) { return false; }
+		if (!state.isUpgradable(index)) { return false; }
 
 		slave.click(crewXY[index]);
 		return true;
@@ -110,39 +106,29 @@ public class QtdSlave {
 	private static final Color upgradeEnable = new Color(-4352430);
 	/** 數值越大、顏色相異容忍度越大 */
 	private static final int upgradeDiffThreshold = 90;
-
-	public static boolean isUpgradable(int index) {
-		return Util.colorDiff(slave.getColor(crewXY[index]), upgradeEnable) < upgradeDiffThreshold;
-	}
 	// ================ //
 
 
 	// ======== 目前推關關卡比較（Stage Compare）區 ======== //
 	private static final Rect levelArea = new Rect(440, 55, 35, 15);
-	private static BufferedImage preStageImage;
-	private static boolean stageDifferent = false;
 
 	/**
 	 * 比較目前關卡與上一次呼叫時是否有差異。
 	 * 本身不會回傳結果，而是要用 {@link #isStageDifferent()}。
 	 * 這樣就除了節省效率之外，
-	 * 也不用擔心 {@link #isStageDifferent()} 短時間內重複呼叫造成的問題。
+	 * 也不用擔心 {@link State#isStageDifferent()} 短時間內重複呼叫造成的問題。
 	 */
 	public static void compareStage() {
 		//第一次呼叫，preStageImage 會是空的，所以視為有差別
-		if (preStageImage == null) {
-			preStageImage = slave.screenShot(levelArea);
-			stageDifferent = true;
+		if (state.preStageImage == null) {
+			state.preStageImage = slave.screenShot(levelArea);
+			state.stageDifferent = true;
 			return;
 		}
 
 		BufferedImage nowLvImg = slave.screenShot(levelArea);
-		stageDifferent = !Util.compare(preStageImage, nowLvImg);
-		preStageImage = nowLvImg;
-	}
-
-	public static boolean isStageDifferent() {
-		return stageDifferent;
+		state.stageDifferent = !Util.compare(state.preStageImage, nowLvImg);
+		state.preStageImage = nowLvImg;
 	}
 	// ================ //
 
@@ -160,38 +146,14 @@ public class QtdSlave {
 		slave.click(new XY(100 + 50 * (i - 1), 350));
 		slave.sleep(3);
 		slave.click(teamButton);
-		team = i;
+		state.team = i;
 	}
 
-	public static final BufferedImage[] teamActiveImage = new BufferedImage[3];
+	private static final BufferedImage[] teamActiveImage = new BufferedImage[3];
 	static {
 		for (int i = 0; i < teamActiveImage.length; i++) {
 			teamActiveImage[i] = Util.read("QTD/Team" + (i + 1) + ".png");
 		}
-	}
-
-	private static int team = 0;
-
-	/**
-	 * @return 值域：1～3
-	 */
-	public static int getTeam() {
-		if (team != 0) { return team; }
-
-		slave.click(teamButton);
-		slave.sleep(3);
-
-		for (int i = 0; i < teamActiveImage.length; i++) {
-			Rect rect = getTeamArea(i + 1);
-			if (Util.compare(teamActiveImage[i], slave.screenShot(rect))) {
-				slave.click(teamButton);
-				team = i + 1;
-				return team;
-			}
-		}
-
-		slave.click(teamButton);
-		throw new IllegalStateException("Team 偵測出錯");
 	}
 
 	private static final XY teamSize = new XY(40, 40);
@@ -202,14 +164,59 @@ public class QtdSlave {
 	public static Rect getTeamArea(int i) {
 		return new Rect(new XY(82 + (i - 1) * 52, 322), teamSize);
 	}
-
-	private static final int[][] upgradeIndex = {
-		{1},
-		{3, 6}
-	};
-
-	public static int[] getUpgradeIndex() {
-		return upgradeIndex[getTeam() - 1];
-	}
 	// ================ //
+
+
+	public static class State {
+		private BufferedImage preStageImage;
+		private boolean stageDifferent = false;
+
+		private int lvX;
+
+		private int team = 0;
+		private int[][] upgradeIndex = {
+			{1},
+			{3, 6},
+			{3, 6, 5, 4, 1, 2}
+		};
+
+		/**
+		 * @return 值域：0～2。代表 Lv 倍數為 10^n
+		 */
+		public int getLvX() { return lvX; }
+
+		/**
+		 * @return 值域：1～3
+		 */
+		public int getTeam() {
+			if (team != 0) { return team; }
+
+			slave.click(teamButton);
+			slave.sleep(3);
+
+			for (int i = 0; i < teamActiveImage.length; i++) {
+				Rect rect = getTeamArea(i + 1);
+				if (Util.compare(teamActiveImage[i], slave.screenShot(rect))) {
+					slave.click(teamButton);
+					team = i + 1;
+					return team;
+				}
+			}
+
+			slave.click(teamButton);
+			throw new IllegalStateException("Team 偵測出錯");
+		}
+
+		public int[] getUpgradeIndex() {
+			return upgradeIndex[getTeam() - 1];
+		}
+
+		public boolean isStageDifferent() {
+			return stageDifferent;
+		}
+
+		public boolean isUpgradable(int index) {
+			return Util.colorDiff(slave.getColor(crewXY[index]), upgradeEnable) < upgradeDiffThreshold;
+		}
+	}
 }

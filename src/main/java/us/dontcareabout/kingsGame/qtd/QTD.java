@@ -1,5 +1,7 @@
 package us.dontcareabout.kingsGame.qtd;
 
+import static us.dontcareabout.kingsGame.qtd.QtdSlave.state;
+
 import us.dontcareabout.kingsGame.common.Rect;
 import us.dontcareabout.kingsGame.common.Task;
 import us.dontcareabout.kingsGame.common.TaskManager;
@@ -20,7 +22,7 @@ public class QTD {
 
 		@Override
 		protected void process() {
-			for (int i : QtdSlave.getUpgradeIndex()) {
+			for (int i : state.getUpgradeIndex()) {
 				int count = 0;
 
 				while(count < 10 && QtdSlave.upgradeCrew(i)) {
@@ -29,7 +31,7 @@ public class QTD {
 				}
 			}
 
-			if (QtdSlave.getTeam() != 1) { return; }
+			if (state.getTeam() != 1) { return; }
 
 			team1--;
 
@@ -49,9 +51,9 @@ public class QTD {
 		@Override
 		protected void process() {
 			QtdSlave.compareStage();
-			if (QtdSlave.isStageDifferent()) { return; }
+			if (state.isStageDifferent()) { return; }
 
-			int lvX = QtdSlave.getLvX();
+			int lvX = state.getLvX();
 			if (lvX != 0) {
 				QtdSlave.swapLvX(lvX - 1);
 				return;
