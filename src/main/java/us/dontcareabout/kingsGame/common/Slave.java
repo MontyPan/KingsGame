@@ -10,6 +10,7 @@ import java.awt.image.BufferedImage;
 public class Slave {
 	private static Slave instance;
 	static {
+		System.setProperty("java.awt.headless", "false");
 		try { instance = new Slave(); } catch(Exception e) {}
 	}
 	public static Slave call() {
@@ -41,8 +42,12 @@ public class Slave {
 		robot.keyRelease(key);
 	}
 
-	public void click(XY xy) {
+	public void move(XY xy) {
 		robot.mouseMove(xy.x, xy.y);
+	}
+
+	public void click(XY xy) {
+		move(xy);
 		robot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
 		robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
 	}
@@ -50,7 +55,7 @@ public class Slave {
 	public void pressAndMove(XY start, int distance) {
 		int way = distance < 0 ? -1 : 1;
 
-		robot.mouseMove(start.x, start.y);
+		move(start);
 		robot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
 		robot.delay(500);
 		for (int i = 1; i <= Math.abs(distance); i++) {
