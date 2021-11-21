@@ -20,6 +20,11 @@ public class QtdSlave {
 
 	private static final Slave slave = Slave.call();
 
+	// ======== 無主孤魂座標區 ======== //
+	private static final Rect screen = new Rect(new XY(0, 41), new XY(915, 514));
+	// ================ //
+
+
 	/** {@link Slave#sleep(int)} */
 	public static void sleep(int second) {
 		slave.sleep(second);
@@ -108,9 +113,8 @@ public class QtdSlave {
 	private static final int upgradeDiffThreshold = 90;
 	// ================ //
 
-
 	// ======== 目前推關關卡比較（Stage Compare）區 ======== //
-	private static final Rect levelArea = new Rect(440, 55, 35, 15);
+	private static final Rect levelArea = new Rect(440, 55, 38, 15);
 
 	/**
 	 * 比較目前關卡與上一次呼叫時是否有差異。
@@ -184,6 +188,14 @@ public class QtdSlave {
 		 * @return 值域：0～2。代表 Lv 倍數為 10^n
 		 */
 		public int getLvX() { return lvX; }
+
+		public BufferedImage getPreStageImage() {
+			return preStageImage;
+		}
+
+		public BufferedImage getScreenImage() {
+			return slave.screenShot(screen);
+		}
 
 		/**
 		 * @return 值域：1～3
