@@ -27,6 +27,10 @@ public 	class TaskManager {
 		list.add(t);
 	}
 
+	public void shutdown() {
+		service.shutdown();
+	}
+
 	private void checkList() {
 		long now = Util.now();
 
