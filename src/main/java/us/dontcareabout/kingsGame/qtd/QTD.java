@@ -5,19 +5,13 @@ import us.dontcareabout.kingsGame.common.TaskManager;
 import us.dontcareabout.kingsGame.qtd.task.StageCompare;
 import us.dontcareabout.kingsGame.qtd.task.Upgrade;
 
-public class QTD {
+public class QTD extends TaskManager {
 	private static final Rect buyArea = new Rect(235, 105, 40, 20);
 
-	private TaskManager tm = new TaskManager();
-
-	QTD() throws Exception {
+	public QTD() {
 		QtdSlave.swapLvX(2);
-		tm.add(new Upgrade());
-		tm.add(new StageCompare());
-	}
-
-	void start() {
-		tm.start();
+		add(new Upgrade());
+		add(new StageCompare());
 	}
 
 	public static void main(String[] args) throws Exception {
