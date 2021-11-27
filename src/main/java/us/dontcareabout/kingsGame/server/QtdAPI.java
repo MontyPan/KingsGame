@@ -5,6 +5,7 @@ import static us.dontcareabout.kingsGame.qtd.QtdSlave.state;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.List;
 
 import javax.imageio.ImageIO;
 
@@ -15,6 +16,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import us.dontcareabout.kingsGame.qtd.QTD;
+import us.dontcareabout.kingsGame.shared.Log;
+import us.dontcareabout.kingsGame.shared.qtd.ImageSet;
 
 @RestController
 @RequestMapping("qtd")
@@ -23,6 +26,7 @@ public class QtdAPI implements DisposableBean {
 
 	public QtdAPI() {
 		qtd.start();
+		Logger.log("QTD API start");
 	}
 
 	@Override
@@ -32,14 +36,17 @@ public class QtdAPI implements DisposableBean {
 
 	////////////////////////////////
 
-	@GetMapping("/stage")
-	public String stage() {
-		return toDataUri(state.getPreStageImage(), "jpg");
+	@GetMapping("/imageSet")
+	public ImageSet imageSet() {
+		ImageSet result = new ImageSet();
+		result.setStage(toDataUri(state.getPreStageImage(), "jpg"));
+		result.setScreen(toDataUri(state.getScreenImage(), "jpg"));
+		return result;
 	}
 
-	@GetMapping("/screen")
-	public String screen() {
-		return toDataUri(state.getScreenImage(), "jpg");
+	@GetMapping("/log")
+	public List<Log> log() {
+		return Logger.getList();
 	}
 
 	private static String toDataUri(BufferedImage image, String type) {
