@@ -9,6 +9,7 @@ import us.dontcareabout.kingsGame.common.Rect;
 import us.dontcareabout.kingsGame.common.Slave;
 import us.dontcareabout.kingsGame.common.Util;
 import us.dontcareabout.kingsGame.common.XY;
+import us.dontcareabout.kingsGame.shared.qtd.Parameter;
 
 /**
  * 座標、狀態（{@link State}）、以及操作行為集散地。
@@ -21,7 +22,7 @@ public class QtdSlave {
 	private static final Slave slave = Slave.call();
 
 	// ======== 無主孤魂座標區 ======== //
-	private static final Rect screen = new Rect(new XY(0, 41), new XY(915, 514));
+	private static final Rect screen = new Rect(new XY(0, 41), new XY(Parameter.SCREEN_WIDTH, Parameter.SCREEN_HEIGHT));
 	// ================ //
 
 
@@ -114,7 +115,7 @@ public class QtdSlave {
 	// ================ //
 
 	// ======== 目前推關關卡比較（Stage Compare）區 ======== //
-	private static final Rect levelArea = new Rect(440, 55, 38, 15);
+	private static final Rect stageArea = new Rect(Parameter.STAGE_X, Parameter.STAGE_Y, Parameter.STAGE_WIDTH, Parameter.STAGE_HEIGHT);
 
 	/**
 	 * 比較目前關卡與上一次呼叫時是否有差異。
@@ -125,12 +126,12 @@ public class QtdSlave {
 	public static void compareStage() {
 		//第一次呼叫，preStageImage 會是空的，所以視為有差別
 		if (state.preStageImage == null) {
-			state.preStageImage = slave.screenShot(levelArea);
+			state.preStageImage = slave.screenShot(stageArea);
 			state.stageDifferent = true;
 			return;
 		}
 
-		BufferedImage nowLvImg = slave.screenShot(levelArea);
+		BufferedImage nowLvImg = slave.screenShot(stageArea);
 		state.stageDifferent = !Util.compare(state.preStageImage, nowLvImg);
 		state.preStageImage = nowLvImg;
 	}
