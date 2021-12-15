@@ -12,11 +12,13 @@ import javax.imageio.ImageIO;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.util.Base64Utils;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import us.dontcareabout.kingsGame.qtd.QTD;
 import us.dontcareabout.kingsGame.shared.Log;
+import us.dontcareabout.kingsGame.shared.qtd.Action;
 import us.dontcareabout.kingsGame.shared.qtd.ImageSet;
 
 @RestController
@@ -35,6 +37,16 @@ public class QtdAPI implements DisposableBean {
 	}
 
 	////////////////////////////////
+
+	@GetMapping("/action/{type}")
+	public Action action(@PathVariable Action type) {
+		switch(type) {
+		case clearLog:
+			Logger.clear();
+			break;
+		}
+		return type;
+	}
 
 	@GetMapping("/imageSet")
 	public ImageSet imageSet() {
