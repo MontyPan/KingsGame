@@ -8,11 +8,11 @@ import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.event.shared.SimpleEventBus;
 
 import us.dontcareabout.kingsGame.client.gf.GetRequest;
-import us.dontcareabout.kingsGame.client.qtd.data.ImageSetReadyEvent.ImageSetReadyHandler;
+import us.dontcareabout.kingsGame.client.qtd.data.StateReadyEvent.StateReadyHandler;
 import us.dontcareabout.kingsGame.client.qtd.data.LogReadyEvent.LogReadyHandler;
 import us.dontcareabout.kingsGame.shared.Log;
 import us.dontcareabout.kingsGame.shared.qtd.Action;
-import us.dontcareabout.kingsGame.shared.qtd.ImageSet;
+import us.dontcareabout.kingsGame.shared.qtd.State;
 
 public class DataCenter {
 	private final static SimpleEventBus eventBus = new SimpleEventBus();
@@ -46,18 +46,18 @@ public class DataCenter {
 
 	////////////////
 
-	public interface ImageSetMapper extends ObjectMapper<ImageSet> {}
-	private static ObjectMapper<ImageSet> imageSetMapper = GWT.create(ImageSetMapper.class);
+	public interface StateMapper extends ObjectMapper<State> {}
+	private static ObjectMapper<State> stateMapper = GWT.create(StateMapper.class);
 
-	public static void getImageSet() {
-		GetRequest<ImageSet> request = new GetRequest<>();
-		request.setPath("qtd/imageSet").setReader(imageSetMapper)
+	public static void getState() {
+		GetRequest<State> request = new GetRequest<>();
+		request.setPath("qtd/state").setReader(stateMapper)
 			.setCallback(
-				data -> eventBus.fireEvent(new ImageSetReadyEvent(data))
+				data -> eventBus.fireEvent(new StateReadyEvent(data))
 			).send();
 	}
 
-	public static HandlerRegistration addImageSetReady(ImageSetReadyHandler handler) {
-		return eventBus.addHandler(ImageSetReadyEvent.TYPE, handler);
+	public static HandlerRegistration addStateReady(StateReadyHandler handler) {
+		return eventBus.addHandler(StateReadyEvent.TYPE, handler);
 	}
 }

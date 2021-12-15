@@ -28,7 +28,7 @@ public class Monitor extends LayerContainer {
 		toolbarL.addIcon("停", e -> Console.log("停"));
 
 		Toolbar toolbarR = new Toolbar();
-		toolbarR.addIcon("刷", e -> DataCenter.getImageSet());
+		toolbarR.addIcon("刷", e -> DataCenter.getState());
 
 		HorizontalLayoutLayer upBar = new HorizontalLayoutLayer();
 		upBar.setMargins(2);
@@ -45,10 +45,10 @@ public class Monitor extends LayerContainer {
 		);
 		addLayer(root);
 
-		DataCenter.addImageSetReady(
+		DataCenter.addStateReady(
 			event -> {
-				screen.setResource(ImageUtil.toResource(event.data.getScreen()));
-				stage.setResource(ImageUtil.toResource(event.data.getStage()));
+				screen.setResource(ImageUtil.toResource(event.data.getScreenImage()));
+				stage.setResource(ImageUtil.toResource(event.data.getStageImage()));
 
 				//XXX ImageResource 的 size 暫時無解，先撐著用
 				adjustMember(getOffsetWidth(), getOffsetHeight());
@@ -66,7 +66,7 @@ public class Monitor extends LayerContainer {
 	@Override
 	protected void onLoad() {
 		super.onLoad();
-		DataCenter.getImageSet();
+		DataCenter.getState();
 	}
 
 	class Toolbar extends HorizontalLayoutLayer {

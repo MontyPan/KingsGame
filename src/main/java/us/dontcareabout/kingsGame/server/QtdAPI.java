@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import us.dontcareabout.kingsGame.qtd.QTD;
 import us.dontcareabout.kingsGame.shared.Log;
 import us.dontcareabout.kingsGame.shared.qtd.Action;
-import us.dontcareabout.kingsGame.shared.qtd.ImageSet;
+import us.dontcareabout.kingsGame.shared.qtd.State;
 
 @RestController
 @RequestMapping("qtd")
@@ -48,11 +48,11 @@ public class QtdAPI implements DisposableBean {
 		return type;
 	}
 
-	@GetMapping("/imageSet")
-	public ImageSet imageSet() {
-		ImageSet result = new ImageSet();
-		result.setStage(toDataUri(state.getPreStageImage(), "jpg"));
-		result.setScreen(toDataUri(state.getScreenImage(), "jpg"));
+	@GetMapping("/state")
+	public State state() {
+		State result = new State();
+		result.setStageImage(toDataUri(state.getPreStageImage(), "jpg"));
+		result.setScreenImage(toDataUri(state.getScreenImage(), "jpg"));
 		return result;
 	}
 
