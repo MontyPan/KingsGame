@@ -11,10 +11,23 @@ import us.dontcareabout.kingsGame.client.gf.GetRequest;
 import us.dontcareabout.kingsGame.client.qtd.data.ImageSetReadyEvent.ImageSetReadyHandler;
 import us.dontcareabout.kingsGame.client.qtd.data.LogReadyEvent.LogReadyHandler;
 import us.dontcareabout.kingsGame.shared.Log;
+import us.dontcareabout.kingsGame.shared.qtd.Action;
 import us.dontcareabout.kingsGame.shared.qtd.ImageSet;
 
 public class DataCenter {
 	private final static SimpleEventBus eventBus = new SimpleEventBus();
+
+	public interface ActionMapper extends ObjectMapper<Action> {}
+	private static ObjectMapper<Action> actionMapper = GWT.create(ActionMapper.class);
+
+	public static void action(Action action) {
+		GetRequest<Action> request = new GetRequest<>();
+		request.setPath("qtd/action/" + action).setReader(actionMapper)
+			.setCallback(data -> getLog())
+			.send();
+	}
+
+	////////////////
 
 	public interface LogListMapper extends ObjectMapper<List<Log>> {}
 	private static ObjectMapper<List<Log>> logListMapper = GWT.create(LogListMapper.class);
