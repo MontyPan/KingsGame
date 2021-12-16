@@ -14,6 +14,7 @@ import us.dontcareabout.gxt.client.draw.layout.VerticalLayoutLayer;
 import us.dontcareabout.kingsGame.client.gf.CenterLayoutLayer;
 import us.dontcareabout.kingsGame.client.qtd.data.DataCenter;
 import us.dontcareabout.kingsGame.shared.qtd.Parameter;
+import us.dontcareabout.kingsGame.shared.qtd.State;
 
 public class Monitor extends LayerContainer {
 	private static final int iconSize = 30;
@@ -56,28 +57,7 @@ public class Monitor extends LayerContainer {
 		root.addChild(upgradeHLL, 30);
 		addLayer(root);
 
-		DataCenter.addStateReady(
-			event -> {
-				screen.setResource(ImageUtil.toResource(event.data.getScreenImage()));
-				stage.setResource(ImageUtil.toResource(event.data.getStageImage()));
-
-				for (UpgradeBtn btn : upgradeBtns) {
-					btn.on = false;
-					for (int index : event.data.getUpgradeIndex()) {
-						if (btn.index != index) { continue; }
-
-						btn.on = true;
-						break;
-					}
-					btn.refresh();
-				}
-
-				//XXX ImageResource 的 size 暫時無解，先撐著用
-				adjustMember(getOffsetWidth(), getOffsetHeight());
-
-				redrawSurface();
-			}
-		);
+		DataCenter.addStateReady(event -> refresh(event.data));
 	}
 
 	@Override
@@ -89,6 +69,27 @@ public class Monitor extends LayerContainer {
 	protected void onLoad() {
 		super.onLoad();
 		DataCenter.getState();
+	}
+
+	private void refresh(State data) {
+		screen.setResource(ImageUtil.toResource(data.getScreenImage()));
+		stage.setResource(ImageUtil.toResource(data.getStageImage()));
+
+		for (UpgradeBtn btn : upgradeBtns) {
+			btn.on = false;
+			for (int index : data.getUpgradeIndex()) {
+				if (btn.index != index) { continue; }
+
+				btn.on = true;
+				break;
+			}
+			btn.refresh();
+		}
+
+		//XXX ImageResource 的 size 暫時無解，先撐著用
+		adjustMember(getOffsetWidth(), getOffsetHeight());
+
+		redrawSurface();
 	}
 
 	class Toolbar extends HorizontalLayoutLayer {
