@@ -13,10 +13,13 @@ import org.springframework.beans.factory.DisposableBean;
 import org.springframework.util.Base64Utils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import us.dontcareabout.kingsGame.qtd.QTD;
+import us.dontcareabout.kingsGame.qtd.QtdSlave;
 import us.dontcareabout.kingsGame.shared.Log;
 import us.dontcareabout.kingsGame.shared.qtd.Action;
 import us.dontcareabout.kingsGame.shared.qtd.State;
@@ -53,6 +56,7 @@ public class QtdAPI implements DisposableBean {
 		State result = new State();
 		result.setStageImage(toDataUri(state.getPreStageImage(), "jpg"));
 		result.setScreenImage(toDataUri(state.getScreenImage(), "jpg"));
+		result.setUpgradeIndex(state.getUpgradeIndex());
 		return result;
 	}
 
@@ -60,6 +64,15 @@ public class QtdAPI implements DisposableBean {
 	public List<Log> log() {
 		return Logger.getList();
 	}
+
+	////////////////////////////////
+
+	@PostMapping("/upgradeIndex")
+	public void upgradeIndex(@RequestBody int[] index) {
+		QtdSlave.state.setUpgradeIndex(index);
+	}
+
+	////////////////////////////////
 
 	private static String toDataUri(BufferedImage image, String type) {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();

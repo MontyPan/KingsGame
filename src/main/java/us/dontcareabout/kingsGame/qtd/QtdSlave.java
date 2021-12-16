@@ -224,6 +224,10 @@ public class QtdSlave {
 			return upgradeIndex[getTeam() - 1];
 		}
 
+		public void setUpgradeIndex(int[] index) {
+			upgradeIndex[getTeam() - 1] = index;
+		}
+
 		public boolean isStageDifferent() {
 			return stageDifferent;
 		}
