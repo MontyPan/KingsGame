@@ -21,6 +21,7 @@ public class Monitor extends LayerContainer {
 	private VerticalLayoutLayer root = new VerticalLayoutLayer();
 	private LImageSprite screen = new LImageSprite();
 	private LImageSprite stage = new LImageSprite();
+	private UpgradeBtn[] upgradeBtns = new UpgradeBtn[7];	//Refactory magic number
 
 	public Monitor() {
 		Toolbar toolbarL = new Toolbar();
@@ -38,17 +39,38 @@ public class Monitor extends LayerContainer {
 		upBar.addChild(new CenterLayoutLayer(stage, Parameter.STAGE_WIDTH, Parameter.STAGE_HEIGHT), 1);
 		upBar.addChild(toolbarR, toolbarR.getIconAmount() * (iconSize + 2) + 2);
 
+		HorizontalLayoutLayer upgradeHLL = new HorizontalLayoutLayer();
+		upgradeHLL.setMargins(new Margins(0, 2, 2, 2));
+		upgradeHLL.setGap(3);
+
+		for (int i = 0; i < upgradeBtns.length; i++) {
+			upgradeBtns[i] = new UpgradeBtn(i);
+			upgradeHLL.addChild(upgradeBtns[i], 1.0 / upgradeBtns.length);
+		}
+
 		root.addChild(upBar, iconSize + 4);
 		root.addChild(
 			new CenterLayoutLayer(screen, Parameter.SCREEN_WIDTH, Parameter.SCREEN_HEIGHT),
 			1
 		);
+		root.addChild(upgradeHLL, 30);
 		addLayer(root);
 
 		DataCenter.addStateReady(
 			event -> {
 				screen.setResource(ImageUtil.toResource(event.data.getScreenImage()));
 				stage.setResource(ImageUtil.toResource(event.data.getStageImage()));
+
+				for (UpgradeBtn btn : upgradeBtns) {
+					btn.on = false;
+					for (int index : event.data.getUpgradeIndex()) {
+						if (btn.index != index) { continue; }
+
+						btn.on = true;
+						break;
+					}
+					btn.refresh();
+				}
 
 				//XXX ImageResource 的 size 暫時無解，先撐著用
 				adjustMember(getOffsetWidth(), getOffsetHeight());
@@ -86,6 +108,23 @@ public class Monitor extends LayerContainer {
 
 		int getIconAmount() {
 			return this.getMembers().size() - 1;
+		}
+	}
+
+	class UpgradeBtn extends TextButton {
+		final int index;
+		boolean on;
+
+		public UpgradeBtn(int i) {
+			index = i;
+			setText("" + i);
+			setTextColor(RGB.WHITE);
+			setBgRadius(5);
+			refresh();
+		}
+
+		private void refresh() {
+			setBgColor(on ? RGB.RED : RGB.LIGHTGRAY);
 		}
 	}
 }
