@@ -65,7 +65,7 @@ public class QtdSlave {
 
 	// ======== 升級倍數（LvX）區 ======== //
 	private static final XY lvMultiple = new XY(170, 395);
-	private static final Rect lvMultipleArea = new Rect(new XY(130, 380), new XY(80, 30));
+	private static final Rect lvMultipleArea = new Rect(new XY(140, 389), new XY(58, 13));
 	private static final BufferedImage[] lvMultipleImage = new BufferedImage[3];
 	static {
 		for (int i = 0; i < lvMultipleImage.length; i++) {
