@@ -47,6 +47,9 @@ public class QtdAPI implements DisposableBean {
 		case clearLog:
 			Logger.clear();
 			break;
+		case restart:
+			QtdSlave.restartQTD();
+			break;
 		}
 		return type;
 	}
