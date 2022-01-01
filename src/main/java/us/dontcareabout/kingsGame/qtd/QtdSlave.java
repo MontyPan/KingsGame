@@ -9,6 +9,7 @@ import us.dontcareabout.kingsGame.common.Rect;
 import us.dontcareabout.kingsGame.common.Slave;
 import us.dontcareabout.kingsGame.common.Util;
 import us.dontcareabout.kingsGame.common.XY;
+import us.dontcareabout.kingsGame.server.Logger;
 import us.dontcareabout.kingsGame.shared.qtd.Parameter;
 
 /**
@@ -20,11 +21,6 @@ public class QtdSlave {
 	public static final State state = new State();
 
 	private static final Slave slave = Slave.call();
-
-	// ======== 無主孤魂座標區 ======== //
-	private static final Rect screen = new Rect(new XY(0, 41), new XY(Parameter.SCREEN_WIDTH, Parameter.SCREEN_HEIGHT));
-	// ================ //
-
 
 	/** {@link Slave#sleep(int)} */
 	public static void sleep(int second) {
@@ -39,6 +35,55 @@ public class QtdSlave {
 		long value = (nowTime - startTime) / 86400000 % 14;
 		return value == 0 || value == 1;
 	}
+
+	// ======== 無主孤魂座標區 ======== //
+	private static final Rect screen = new Rect(new XY(0, 41), new XY(Parameter.SCREEN_WIDTH, Parameter.SCREEN_HEIGHT));
+	private static final XY safePoint = new XY(350, 300);
+	// ================ //
+
+	// ======== BlueStack 區 ======== //
+	private static final XY bsDesktopIcon = new XY(50, 30);
+	private static final XY bsExit = new XY(900, 25);
+	private static final XY bsExitConfirm = new XY(530, 320);
+	private static final XY bsSaveEngry = new XY(945, 115);
+	private static final XY bsSaveEngryOn = new XY(882, 82);
+
+	public static void exitBlueStacks() {
+		Logger.log("退出 BlueStacks");
+		slave.click(bsExit);
+		slave.sleep(2);
+		slave.click(bsExitConfirm);
+	}
+
+	/**
+	 * 執行 QTD 到「離線統計」對話框消失
+	 */
+	public static void executeQTD() {
+		Logger.log("執行 QTD");
+		slave.doubleClick(bsDesktopIcon);
+		//等遊戲 loading 完進入遊戲
+		slave.sleep(35);
+		//要再點一下才會真的進入遊戲
+		slave.click(safePoint);
+		slave.sleep(20);	//懶得點，等待離線統計視窗自己消失
+	}
+
+	public static void swapSaveEngry() {
+		slave.click(bsSaveEngry);
+		slave.sleep(2);
+		slave.click(bsSaveEngryOn);
+		slave.move(safePoint);	//要移開才能讓 panel 消失
+	}
+
+	public static void restartQTD() {
+		Logger.log("重新啟動 QTD");
+		exitBlueStacks();
+		slave.sleep(30);
+		executeQTD();
+		swapSaveEngry();
+		swapLvX(state.getLvX());
+	}
+	// ================ //
 
 	// ======== 晉升（Ascend）區 ======== //
 	private static final XY ascendButton = new XY(100, 340);
