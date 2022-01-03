@@ -45,11 +45,16 @@ public class QtdAPI implements DisposableBean {
 	public Action action(@PathVariable Action type) {
 		switch(type) {
 		case clearLog:
-			Logger.clear();
-			break;
+			Logger.clear(); break;
+		case pause:
+			qtd.pause(); break;
 		case restart:
+			qtd.pause();
 			QtdSlave.restartQTD();
+			qtd.resume();
 			break;
+		case resume:
+			qtd.resume(); break;
 		}
 		return type;
 	}
