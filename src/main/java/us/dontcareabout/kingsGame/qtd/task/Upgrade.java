@@ -14,6 +14,8 @@ public class Upgrade extends Task {
 	@Override
 	protected void process() {
 		for (int i : state.getUpgradeIndex()) {
+			if (state.isUpgradeEnd(i)) { continue; }
+
 			int count = 0;
 
 			while(count < 10 && QtdSlave.upgradeCrew(i)) {

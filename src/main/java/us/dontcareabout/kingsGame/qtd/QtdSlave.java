@@ -155,6 +155,8 @@ public class QtdSlave {
 	}
 
 	private static final Color upgradeEnable = new Color(-4352430);
+	private static final Color upgradeEnd = new Color(-10251587);
+
 	/** 數值越大、顏色相異容忍度越大 */
 	private static final int upgradeDiffThreshold = 90;
 	// ================ //
@@ -279,6 +281,10 @@ public class QtdSlave {
 
 		public boolean isUpgradable(int index) {
 			return Util.colorDiff(slave.getColor(crewXY[index]), upgradeEnable) < upgradeDiffThreshold;
+		}
+
+		public boolean isUpgradeEnd(int index) {
+			return Util.colorDiff(slave.getColor(crewXY[index]), upgradeEnd) < upgradeDiffThreshold;
 		}
 	}
 }
