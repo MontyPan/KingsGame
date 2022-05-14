@@ -2,6 +2,7 @@ package us.dontcareabout.kingsGame.common;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -11,7 +12,7 @@ public class Util {
 	private static final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
 
 	public static void log(String message) {
-		System.out.print(Util.nowText() + " : ");
+		System.out.print("[" + Util.nowText() + "] ");
 		System.out.println(message);
 	}
 
@@ -48,6 +49,14 @@ public class Util {
 		} catch(Exception e) {
 			e.printStackTrace();
 			return null;
+		}
+	}
+
+	public static void write(BufferedImage image, File file) {
+		try {
+			ImageIO.write(image, "PNG", file);
+		} catch(Exception e) {
+			e.printStackTrace();
 		}
 	}
 }
