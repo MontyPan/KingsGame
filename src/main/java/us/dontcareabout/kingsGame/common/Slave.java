@@ -52,6 +52,12 @@ public class Slave {
 		robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
 	}
 
+	public void doubleClick(XY xy) {
+		click(xy);
+		wait(100);
+		click(xy);
+	}
+
 	public void pressAndMove(XY start, int distance) {
 		int way = distance < 0 ? -1 : 1;
 
@@ -60,7 +66,7 @@ public class Slave {
 		robot.delay(500);
 		for (int i = 1; i <= Math.abs(distance); i++) {
 			robot.mouseMove(start.x, start.y + (i * way));
-			robot.delay(50);
+			robot.delay(80);
 		}
 		robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
 	}
