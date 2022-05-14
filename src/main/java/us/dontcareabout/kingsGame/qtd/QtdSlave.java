@@ -86,31 +86,34 @@ public class QtdSlave {
 	// ================ //
 
 	// ======== 晉升（Ascend）區 ======== //
-	private static final XY ascendButton = new XY(100, 340);
-	private static final XY ascendConfirm = new XY(335, 495);
-	private static final XY ascendJoinConfirm = new XY(70, 495);
-	private static final XY ascendOffSeasonEnd = new XY(450, 400);
-	private static final XY ascendOnSeasonEnd = new XY(450, 450);
-	private static final XY ascendBlood = new XY(80, 320);
+	public static final XY ascendButton = new XY(100, 340);
+	public static final XY ascendConfirm = new XY(335, 495);
+	public static final XY ascendJoinConfirm = new XY(70, 495);
+	public static final XY ascendOffSeasonEnd = new XY(450, 400);
+	public static final XY ascendOnSeasonEnd = new XY(450, 450);
+	public static final XY ascendBlood = new XY(80, 320);
 
 	public static void doAscend() {
 		slave.click(ascendButton);
 		sleep(5);
 		slave.click(isJoinAscend() ? ascendJoinConfirm : ascendConfirm);
-		sleep(5);
+		sleep(10);
 		slave.click(isOffSeason() ? ascendOffSeasonEnd : ascendOnSeasonEnd);
 	}
 
-	private static boolean isJoinAscend() {
-		int color = slave.getColor(ascendBlood).getRGB();
-		return color == -5629928;
+	public static boolean isJoinAscend() {
+		//曾經出現過的歷史值 -6481375, -5629928, -6219752
+		return Util.colorDiff(
+			slave.getColor(ascendBlood), new Color(-6219752)
+		) < 20;
 	}
 	// ================ //
 
 
 	// ======== 升級倍數（LvX）區 ======== //
-	private static final XY lvMultiple = new XY(170, 395);
-	private static final Rect lvMultipleArea = new Rect(new XY(140, 389), new XY(58, 13));
+	public static final XY lvMultiple = new XY(170, 395);
+	public static final Rect lvMultipleArea = new Rect(new XY(140, 389), new XY(58, 13));
+	public static final Rect lvMultipleArea2 = new Rect(new XY(139, 389), new XY(58, 13));
 	private static final BufferedImage[] lvMultipleImage = new BufferedImage[3];
 	static {
 		for (int i = 0; i < lvMultipleImage.length; i++) {
@@ -127,7 +130,7 @@ public class QtdSlave {
 		//為了預防畫面不是預期的樣子，所以只嘗試三次、避免無窮迴圈
 		int count = 0;
 
-		while(count != 3 && !Util.compare(lvMultipleImage[n], slave.screenShot(lvMultipleArea))) {
+		while(count != 3 && !comparePlus(lvMultipleImage[n], lvMultipleArea)) {
 			slave.click(lvMultiple);
 			slave.sleep(2);
 			count++;
@@ -187,7 +190,7 @@ public class QtdSlave {
 
 	// ======== 切換編隊（Team）區 ======== //
 	/** 同時也是返回主畫面的按鈕 */
-	private static final XY teamButton = new XY(35, 350);
+	public static final XY teamButton = new XY(35, 350);
 
 	/**
 	 * @param i 值域：1～3
@@ -208,13 +211,13 @@ public class QtdSlave {
 		}
 	}
 
-	private static final XY teamSize = new XY(40, 40);
+	private static final XY teamSize = new XY(38, 38);
 
 	/**
 	 * @param i 值域：1～3
 	 */
 	public static Rect getTeamArea(int i) {
-		return new Rect(new XY(82 + (i - 1) * 52, 322), teamSize);
+		return new Rect(new XY(83 + (i - 1) * 52, 323), teamSize);
 	}
 	// ================ //
 
@@ -228,7 +231,7 @@ public class QtdSlave {
 		private int team = 0;
 		private int[][] upgradeIndex = {
 			{1},
-			{3, 6},
+			{4, 5, 6},
 			{3, 6, 5, 4, 1, 2}
 		};
 
@@ -256,7 +259,7 @@ public class QtdSlave {
 
 			for (int i = 0; i < teamActiveImage.length; i++) {
 				Rect rect = getTeamArea(i + 1);
-				if (Util.compare(teamActiveImage[i], slave.screenShot(rect))) {
+				if (comparePlus(teamActiveImage[i], rect)) {
 					slave.click(teamButton);
 					team = i + 1;
 					return team;
@@ -264,6 +267,7 @@ public class QtdSlave {
 			}
 
 			slave.click(teamButton);
+			Logger.log("Team 偵測出錯");
 			throw new IllegalStateException("Team 偵測出錯");
 		}
 
@@ -286,5 +290,25 @@ public class QtdSlave {
 		public boolean isUpgradeEnd(int index) {
 			return Util.colorDiff(slave.getColor(crewXY[index]), upgradeEnd) < upgradeDiffThreshold;
 		}
+	}
+
+	// ======== utility method 區 ======== //
+	/**
+	 * 這是為了解決 BlueStack 有時候會被 Windows 莫名移動 1px 的問題。
+	 * （通常是切換多個螢幕開關的時候）
+	 * 會做 -1～1 是因為不確定抓標準圖的時候有沒有偏移，乾脆就都掃一遍就算了。
+	 */
+	private static boolean comparePlus(BufferedImage base, Rect rect) {
+		for (int i = -1; i < 2; i++) {
+			boolean result = Util.compare(
+				base,
+				slave.screenShot(
+					new Rect(new XY(rect.location.x + i, rect.location.y), rect.size)
+				)
+			);
+			if (result) { return true; }
+		}
+
+		return false;
 	}
 }
