@@ -77,6 +77,7 @@ public class QtdSlave {
 
 	public static void restartQTD() {
 		Logger.log("重新啟動 QTD");
+		slave.sleep(3);	//避免本機一按下去就作動，減少沒點到的可能
 		exitBlueStacks();
 		slave.sleep(30);
 		executeQTD();
