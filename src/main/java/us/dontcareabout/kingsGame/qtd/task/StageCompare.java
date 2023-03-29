@@ -3,8 +3,8 @@ package us.dontcareabout.kingsGame.qtd.task;
 import static us.dontcareabout.kingsGame.qtd.QtdSlave.state;
 
 import us.dontcareabout.kingsGame.common.Task;
-import us.dontcareabout.kingsGame.common.Util;
 import us.dontcareabout.kingsGame.qtd.QtdSlave;
+import us.dontcareabout.kingsGame.server.Logger;
 
 public class StageCompare extends Task {
 	public StageCompare() {
@@ -23,31 +23,18 @@ public class StageCompare extends Task {
 		}
 
 		if (state.getTeam() == 2) {
-			int lvX = state.getLvX();
-			if (lvX != 0) {
-				QtdSlave.swapLvX(lvX - 1);
-				return;
-			} else {
-				swap(3);
-				return;
-			}
-		}
-
-		//team = 3
-		int lvX = state.getLvX();
-		if (lvX != 0) {
-			QtdSlave.swapLvX(lvX - 1);
+			swap(3);
 			return;
 		}
 
-		Util.log("重生啦～～～");
+		Logger.log("重生啦～～～");
 		QtdSlave.doAscend();
-		QtdSlave.sleep(3);
+		QtdSlave.sleep(5);
 		swap(1);
 	}
 
 	private void swap(int team) {
-		Util.log("切換 team " + team);
+		Logger.log("切換 team " + team);
 		QtdSlave.swapTeam(team);
 		QtdSlave.sleep(2);
 		QtdSlave.swapLvX(2);
