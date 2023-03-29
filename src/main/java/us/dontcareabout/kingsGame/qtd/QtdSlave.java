@@ -96,16 +96,16 @@ public class QtdSlave {
 
 	public static void doAscend() {
 		slave.click(ascendButton);
-		sleep(5);
-		slave.click(isJoinAscend() ? ascendJoinConfirm : ascendConfirm);
 		sleep(10);
+		slave.click(isJoinAscend() ? ascendJoinConfirm : ascendConfirm);
+		sleep(15);
 		slave.click(isOffSeason() ? ascendOffSeasonEnd : ascendOnSeasonEnd);
 	}
 
 	public static boolean isJoinAscend() {
-		//曾經出現過的歷史值 -6481375, -5629928, -6219752
+		//曾經出現過的歷史值 -6481375, -5629928, -6219752, -6418399
 		return Util.colorDiff(
-			slave.getColor(ascendBlood), new Color(-6219752)
+			slave.getColor(ascendBlood), new Color(-6418399)
 		) < 20;
 	}
 	// ================ //
@@ -231,8 +231,8 @@ public class QtdSlave {
 
 		private int team = 0;
 		private int[][] upgradeIndex = {
-			{1},
-			{4, 5, 6},
+			{2, 3},
+			{3, 4, 6},
 			{3, 6, 5, 4, 1, 2}
 		};
 
