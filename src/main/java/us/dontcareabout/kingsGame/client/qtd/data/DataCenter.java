@@ -1,5 +1,6 @@
 package us.dontcareabout.kingsGame.client.qtd.data;
 
+import java.util.Arrays;
 import java.util.List;
 
 import com.github.nmorel.gwtjackson.client.ObjectMapper;
@@ -7,9 +8,11 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.event.shared.SimpleEventBus;
 
+import us.dontcareabout.gwt.client.Console;
 import us.dontcareabout.kingsGame.client.gf.GetRequest;
-import us.dontcareabout.kingsGame.client.qtd.data.StateReadyEvent.StateReadyHandler;
+import us.dontcareabout.kingsGame.client.gf.PostRequest;
 import us.dontcareabout.kingsGame.client.qtd.data.LogReadyEvent.LogReadyHandler;
+import us.dontcareabout.kingsGame.client.qtd.data.StateReadyEvent.StateReadyHandler;
 import us.dontcareabout.kingsGame.shared.Log;
 import us.dontcareabout.kingsGame.shared.qtd.Action;
 import us.dontcareabout.kingsGame.shared.qtd.State;
@@ -59,5 +62,13 @@ public class DataCenter {
 
 	public static HandlerRegistration addStateReady(StateReadyHandler handler) {
 		return eventBus.addHandler(StateReadyEvent.TYPE, handler);
+	}
+
+	////////////////
+
+	public static void updateUpgradeIndex(Integer[] index) {
+		new PostRequest().setPath("qtd/upgradeIndex")
+			.setCallback(data -> Console.log(data))
+			.send(Arrays.toString(index));
 	}
 }

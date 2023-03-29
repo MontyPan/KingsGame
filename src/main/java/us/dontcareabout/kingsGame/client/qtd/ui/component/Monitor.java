@@ -1,10 +1,11 @@
 package us.dontcareabout.kingsGame.client.qtd.ui.component;
 
+import java.util.ArrayList;
+
 import com.sencha.gxt.chart.client.draw.RGB;
 import com.sencha.gxt.chart.client.draw.sprite.SpriteSelectionEvent.SpriteSelectionHandler;
 import com.sencha.gxt.core.client.util.Margins;
 
-import us.dontcareabout.gwt.client.Console;
 import us.dontcareabout.gwt.client.util.ImageUtil;
 import us.dontcareabout.gxt.client.draw.LImageSprite;
 import us.dontcareabout.gxt.client.draw.LayerContainer;
@@ -13,6 +14,7 @@ import us.dontcareabout.gxt.client.draw.layout.HorizontalLayoutLayer;
 import us.dontcareabout.gxt.client.draw.layout.VerticalLayoutLayer;
 import us.dontcareabout.kingsGame.client.gf.CenterLayoutLayer;
 import us.dontcareabout.kingsGame.client.qtd.data.DataCenter;
+import us.dontcareabout.kingsGame.shared.qtd.Action;
 import us.dontcareabout.kingsGame.shared.qtd.Parameter;
 import us.dontcareabout.kingsGame.shared.qtd.State;
 
@@ -23,11 +25,12 @@ public class Monitor extends LayerContainer {
 	private LImageSprite screen = new LImageSprite();
 	private LImageSprite stage = new LImageSprite();
 	private UpgradeBtn[] upgradeBtns = new UpgradeBtn[7];	//Refactory magic number
+	private boolean isPause = false;
 
 	public Monitor() {
 		Toolbar toolbarL = new Toolbar();
-		toolbarL.addIcon("重", e -> Console.log("重"));	//FIXME
-		toolbarL.addIcon("停", e -> Console.log("停"));
+		toolbarL.addIcon("重", e -> DataCenter.action(Action.restart));
+		toolbarL.addIcon("停", e -> pauseOrResume());
 
 		Toolbar toolbarR = new Toolbar();
 		toolbarR.addIcon("刷", e -> DataCenter.getState());
@@ -71,6 +74,11 @@ public class Monitor extends LayerContainer {
 		DataCenter.getState();
 	}
 
+	private void pauseOrResume() {
+		DataCenter.action(isPause ? Action.resume : Action.pause);
+		isPause = !isPause;
+	}
+
 	private void refresh(State data) {
 		screen.setResource(ImageUtil.toResource(data.getScreenImage()));
 		stage.setResource(ImageUtil.toResource(data.getStageImage()));
@@ -90,6 +98,19 @@ public class Monitor extends LayerContainer {
 		adjustMember(getOffsetWidth(), getOffsetHeight());
 
 		redrawSurface();
+	}
+
+	private void updateUpgradeIndex() {
+		ArrayList<Integer> result = new ArrayList<>();
+		for (UpgradeBtn btn : upgradeBtns) {
+			if (!btn.on) { continue; }
+			result.add(btn.index);
+		}
+
+		Integer[] data = new Integer[result.size()];
+		result.toArray(data);
+
+		DataCenter.updateUpgradeIndex(data);
 	}
 
 	class Toolbar extends HorizontalLayoutLayer {
@@ -122,10 +143,21 @@ public class Monitor extends LayerContainer {
 			setTextColor(RGB.WHITE);
 			setBgRadius(5);
 			refresh();
+
+			addSpriteSelectionHandler(e -> {
+				swap();
+				updateUpgradeIndex();
+			});
+		}
+
+		void swap() {
+			on = !on;
+			refresh();
 		}
 
 		private void refresh() {
 			setBgColor(on ? RGB.RED : RGB.LIGHTGRAY);
+			redraw();
 		}
 	}
 }
