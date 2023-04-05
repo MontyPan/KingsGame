@@ -8,6 +8,8 @@ import java.util.Date;
 
 import javax.imageio.ImageIO;
 
+import us.dontcareabout.kingsGame.common.OCR.Lang;
+
 public class Util {
 	private static final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
 
@@ -19,6 +21,27 @@ public class Util {
 	public static String nowText() { return dateFormat.format(new Date()); }
 
 	public static long now() { return new Date().getTime(); }
+
+	////////
+
+	private static final OCR ocr = new OCR("src/main/resources/tesseract");
+
+	public static String ocr(BufferedImage image, Lang... lang) {
+		ocr.setLanguage(lang);
+		return ocr.parse(image);
+	}
+
+	public static String ocr(Rect area, Lang... lang) {
+		return ocr(Slave.call().screenShot(area));
+	}
+
+	public static boolean ocrCompare(BufferedImage a, BufferedImage b) {
+		String textA = ocr(a, Lang.en);
+		System.out.println("\tOCR: " + textA);
+		return ocr(b, Lang.en).equals(textA);
+	}
+
+	////////
 
 	public static double colorDiff(Color a, Color b) {
 		return Math.sqrt(
