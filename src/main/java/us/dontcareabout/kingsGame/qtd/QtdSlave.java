@@ -183,7 +183,7 @@ public class QtdSlave {
 		}
 
 		BufferedImage nowLvImg = slave.screenShot(stageArea);
-		state.stageDifferent = !Util.compare(state.preStageImage, nowLvImg);
+		state.stageDifferent = !Util.ocrCompare(state.preStageImage, nowLvImg);
 		state.preStageImage = nowLvImg;
 	}
 	// ================ //
