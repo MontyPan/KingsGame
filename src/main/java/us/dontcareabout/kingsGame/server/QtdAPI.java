@@ -18,10 +18,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import us.dontcareabout.kingsGame.common.Rect;
+import us.dontcareabout.kingsGame.common.Slave;
 import us.dontcareabout.kingsGame.qtd.QTD;
 import us.dontcareabout.kingsGame.qtd.QtdSlave;
 import us.dontcareabout.kingsGame.shared.Log;
 import us.dontcareabout.kingsGame.shared.qtd.Action;
+import us.dontcareabout.kingsGame.shared.qtd.ShotRect;
 import us.dontcareabout.kingsGame.shared.qtd.State;
 
 @RestController
@@ -80,6 +83,13 @@ public class QtdAPI implements DisposableBean {
 		QtdSlave.state.setUpgradeIndex(index);
 	}
 
+	@PostMapping("/shootScreen")
+	public String shootScreen(@RequestBody ShotRect rect) {
+		return toDataUri(
+			Slave.call().screenShot(new Rect(rect.getX(), rect.getY(), rect.getW(), rect.getH())),
+			"jpg"
+		);
+	}
 	////////////////////////////////
 
 	private static String toDataUri(BufferedImage image, String type) {
