@@ -1,5 +1,22 @@
 package us.dontcareabout.kingsGame.qtd;
 
+import static us.dontcareabout.kingsGame.qtd.QtdCoord.ascendBlood;
+import static us.dontcareabout.kingsGame.qtd.QtdCoord.ascendButton;
+import static us.dontcareabout.kingsGame.qtd.QtdCoord.ascendConfirm;
+import static us.dontcareabout.kingsGame.qtd.QtdCoord.ascendJoinConfirm;
+import static us.dontcareabout.kingsGame.qtd.QtdCoord.ascendOffSeasonEnd;
+import static us.dontcareabout.kingsGame.qtd.QtdCoord.ascendOnSeasonEnd;
+import static us.dontcareabout.kingsGame.qtd.QtdCoord.bsDesktopIcon;
+import static us.dontcareabout.kingsGame.qtd.QtdCoord.bsExit;
+import static us.dontcareabout.kingsGame.qtd.QtdCoord.bsExitConfirm;
+import static us.dontcareabout.kingsGame.qtd.QtdCoord.bsSaveEngry;
+import static us.dontcareabout.kingsGame.qtd.QtdCoord.bsSaveEngryOn;
+import static us.dontcareabout.kingsGame.qtd.QtdCoord.crewXY;
+import static us.dontcareabout.kingsGame.qtd.QtdCoord.lvMultiple;
+import static us.dontcareabout.kingsGame.qtd.QtdCoord.lvMultipleArea;
+import static us.dontcareabout.kingsGame.qtd.QtdCoord.stageArea;
+import static us.dontcareabout.kingsGame.qtd.QtdCoord.teamButton;
+
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.util.Calendar;
@@ -42,12 +59,6 @@ public class QtdSlave {
 	// ================ //
 
 	// ======== BlueStack 區 ======== //
-	private static final XY bsDesktopIcon = new XY(50, 30);
-	private static final XY bsExit = new XY(900, 25);
-	private static final XY bsExitConfirm = new XY(530, 320);
-	private static final XY bsSaveEngry = new XY(945, 115);
-	private static final XY bsSaveEngryOn = new XY(882, 82);
-
 	public static void exitBlueStacks() {
 		Logger.log("退出 BlueStacks");
 		slave.click(bsExit);
@@ -87,13 +98,6 @@ public class QtdSlave {
 	// ================ //
 
 	// ======== 晉升（Ascend）區 ======== //
-	public static final XY ascendButton = new XY(100, 340);
-	public static final XY ascendConfirm = new XY(335, 495);
-	public static final XY ascendJoinConfirm = new XY(70, 495);
-	public static final XY ascendOffSeasonEnd = new XY(450, 400);
-	public static final XY ascendOnSeasonEnd = new XY(450, 450);
-	public static final XY ascendBlood = new XY(80, 320);
-
 	public static void doAscend() {
 		slave.click(ascendButton);
 		sleep(10);
@@ -112,9 +116,6 @@ public class QtdSlave {
 
 
 	// ======== 升級倍數（LvX）區 ======== //
-	public static final XY lvMultiple = new XY(170, 395);
-	public static final Rect lvMultipleArea = new Rect(new XY(140, 389), new XY(58, 13));
-	public static final Rect lvMultipleArea2 = new Rect(new XY(139, 389), new XY(58, 13));
 	private static final BufferedImage[] lvMultipleImage = new BufferedImage[3];
 	static {
 		for (int i = 0; i < lvMultipleImage.length; i++) {
@@ -141,16 +142,6 @@ public class QtdSlave {
 
 
 	// ======== 角色升級區（Crew Upgrade）區 ======== //
-	private static final XY[] crewXY = new XY[7];
-	static {
-		XY crew1 = new XY(25, 520);
-		int crewWidth = 140;
-
-		for (int i = 0; i < crewXY.length; i++) {
-			crewXY[i] = new XY(crew1.x + i * crewWidth, crew1.y);
-		}
-	}
-
 	public static boolean upgradeCrew(int index) {
 		if (!state.isUpgradable(index)) { return false; }
 
@@ -166,8 +157,6 @@ public class QtdSlave {
 	// ================ //
 
 	// ======== 目前推關關卡比較（Stage Compare）區 ======== //
-	private static final Rect stageArea = new Rect(Parameter.STAGE_X, Parameter.STAGE_Y, Parameter.STAGE_WIDTH, Parameter.STAGE_HEIGHT);
-
 	/**
 	 * 比較目前關卡與上一次呼叫時是否有差異。
 	 * 本身不會回傳結果，而是要用 {@link #isStageDifferent()}。
@@ -190,9 +179,6 @@ public class QtdSlave {
 
 
 	// ======== 切換編隊（Team）區 ======== //
-	/** 同時也是返回主畫面的按鈕 */
-	public static final XY teamButton = new XY(35, 350);
-
 	/**
 	 * @param i 值域：1～3
 	 */
