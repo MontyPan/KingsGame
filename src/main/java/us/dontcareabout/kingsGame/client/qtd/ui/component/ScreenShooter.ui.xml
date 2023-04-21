@@ -1,0 +1,43 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+	xmlns:g="urn:import:com.google.gwt.user.client.ui" 
+	xmlns:c="urn:import:com.sencha.gxt.widget.core.client.container" 
+	xmlns:f="urn:import:com.sencha.gxt.widget.core.client.form" 
+	xmlns:core="urn:import:com.sencha.gxt.widget.core.client" 
+	xmlns:b="urn:import:com.sencha.gxt.widget.core.client.button">
+	
+	<ui:with field="inputVLD" type="com.sencha.gxt.widget.core.client.container.VerticalLayoutContainer.VerticalLayoutData">
+		<ui:attributes width="1" height="150" />
+	</ui:with>
+	
+	<c:VerticalLayoutContainer>
+		<core:FramedPanel layoutData="{inputVLD}" headerVisible="false">
+			<c:VerticalLayoutContainer>
+				<f:FieldLabel text="X">
+					<f:widget>
+						<f:IntegerField ui:field="x" />
+					</f:widget>
+				</f:FieldLabel>
+				<f:FieldLabel text="Y">
+					<f:widget>
+						<f:IntegerField ui:field="y" />
+					</f:widget>
+				</f:FieldLabel>
+				<f:FieldLabel text="W">
+					<f:widget>
+						<f:IntegerField ui:field="w" />
+					</f:widget>
+				</f:FieldLabel>
+				<f:FieldLabel text="H">
+					<f:widget>
+						<f:IntegerField ui:field="h" />
+					</f:widget>
+				</f:FieldLabel>
+			</c:VerticalLayoutContainer>
+			<core:button>
+				<b:TextButton ui:field="shoot" text="FIRE!!" />
+			</core:button>
+		</core:FramedPanel>
+		<g:Image ui:field="shot" />
+	</c:VerticalLayoutContainer>
+</ui:UiBinder> 
