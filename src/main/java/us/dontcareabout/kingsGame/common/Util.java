@@ -36,9 +36,7 @@ public class Util {
 	}
 
 	public static boolean ocrCompare(BufferedImage a, BufferedImage b) {
-		String textA = ocr(a, Lang.en);
-		System.out.println("\tOCR: " + textA);
-		return ocr(b, Lang.en).equals(textA);
+		return ocr(b, Lang.en).equals(ocr(a, Lang.en));
 	}
 
 	////////
