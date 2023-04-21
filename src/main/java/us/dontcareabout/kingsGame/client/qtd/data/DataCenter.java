@@ -12,16 +12,21 @@ import us.dontcareabout.gwt.client.Console;
 import us.dontcareabout.kingsGame.client.gf.GetRequest;
 import us.dontcareabout.kingsGame.client.gf.PostRequest;
 import us.dontcareabout.kingsGame.client.qtd.data.LogReadyEvent.LogReadyHandler;
+import us.dontcareabout.kingsGame.client.qtd.data.ShootScreenFinishEvent.ShootScreenFinishHandler;
 import us.dontcareabout.kingsGame.client.qtd.data.StateReadyEvent.StateReadyHandler;
 import us.dontcareabout.kingsGame.shared.Log;
 import us.dontcareabout.kingsGame.shared.qtd.Action;
+import us.dontcareabout.kingsGame.shared.qtd.ShotRect;
 import us.dontcareabout.kingsGame.shared.qtd.State;
 
 public class DataCenter {
 	private final static SimpleEventBus eventBus = new SimpleEventBus();
 
 	public interface ActionMapper extends ObjectMapper<Action> {}
+	public interface ShootRectMapper extends ObjectMapper<ShotRect> {}
+
 	private static ObjectMapper<Action> actionMapper = GWT.create(ActionMapper.class);
+	private static ObjectMapper<ShotRect> shootRectMapper = GWT.create(ShootRectMapper.class);
 
 	public static void action(Action action) {
 		GetRequest<Action> request = new GetRequest<>();
@@ -62,6 +67,18 @@ public class DataCenter {
 
 	public static HandlerRegistration addStateReady(StateReadyHandler handler) {
 		return eventBus.addHandler(StateReadyEvent.TYPE, handler);
+	}
+
+	////////////////
+
+	public static void shootScreen(ShotRect rect) {
+		new PostRequest().setPath("qtd/shootScreen")
+			.setCallback(data -> eventBus.fireEvent(new ShootScreenFinishEvent(data)))
+			.send(shootRectMapper.write(rect));
+	}
+
+	public static HandlerRegistration addShootScreenFinish(ShootScreenFinishHandler handler) {
+		return eventBus.addHandler(ShootScreenFinishEvent.TYPE, handler);
 	}
 
 	////////////////
