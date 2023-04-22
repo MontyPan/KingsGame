@@ -11,7 +11,8 @@ public class QtdCoord {
 	public static final XY bsExitConfirm = new XY(530, 320);
 	public static final XY bsSaveEngry = new XY(945, 115);
 	public static final XY bsSaveEngryOn = new XY(882, 82);
-
+	public static final XY bsQtdIcon = new XY(170, 200);
+	public static final Rect bsMyGame = new Rect(10, 65, 100, 30);
 
 	// ======== 晉升（Ascend）區 ======== //
 	public static final XY ascendButton = new XY(100, 340);
