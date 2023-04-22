@@ -22,6 +22,7 @@ import java.awt.image.BufferedImage;
 import java.util.Calendar;
 import java.util.Date;
 
+import us.dontcareabout.kingsGame.common.OCR.Lang;
 import us.dontcareabout.kingsGame.common.Rect;
 import us.dontcareabout.kingsGame.common.Slave;
 import us.dontcareabout.kingsGame.common.Util;
@@ -69,9 +70,7 @@ public class QtdSlave {
 	/**
 	 * 執行 QTD 到「離線統計」對話框消失
 	 */
-	public static void executeQTD() {
-		Logger.log("執行 QTD");
-		slave.doubleClick(bsDesktopIcon);
+	public static void enterQTD() {
 		//等遊戲 loading 完進入遊戲
 		slave.sleep(35);
 		//要再點一下才會真的進入遊戲
@@ -91,7 +90,9 @@ public class QtdSlave {
 		slave.sleep(3);	//避免本機一按下去就作動，減少沒點到的可能
 		exitBlueStacks();
 		slave.sleep(30);
-		executeQTD();
+		Logger.log("執行 QTD");
+		slave.doubleClick(bsDesktopIcon);
+		enterQTD();
 		swapSaveEngry();
 		swapLvX(state.getLvX());
 	}
@@ -229,6 +230,10 @@ public class QtdSlave {
 
 		public BufferedImage getPreStageImage() {
 			return preStageImage;
+		}
+
+		public String getPreStage() {
+			return Util.ocr(preStageImage, Lang.en);
 		}
 
 		public BufferedImage getScreenImage() {
